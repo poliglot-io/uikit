@@ -1,0 +1,311 @@
+/*
+ * Safelist source file for pre-compiling utility classes.
+ *
+ * This file is processed by Tailwind CLI at build time to generate
+ * dist/styles.css with actual CSS class definitions.
+ *
+ * The output is post-processed to extract ONLY utility classes,
+ * stripping base/reset/theme blocks.
+ */
+
+@import "tailwindcss";
+
+/* Use class-based dark mode instead of prefers-color-scheme */
+@variant dark (&:where(.dark, .dark *));
+
+/* Theme colors reference CSS variables defined by the consuming app.
+ * Using @theme inline with var() references - utilities will use these var() values.
+ */
+@theme inline {
+  /* Colors - Reference consumer's CSS variables */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Chart colors */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar colors */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Radius - reference consumer's radius variable */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ============================================
+ * SAFELIST - Force generation of utility classes
+ * Uses @source inline() to generate classes even
+ * without them appearing in source files.
+ * ============================================ */
+
+/* Spacing */
+@source inline("p-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("px-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("py-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("pt-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("pr-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("pb-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("pl-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("m-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("mx-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("my-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("mt-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("mr-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("mb-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("ml-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto}");
+@source inline("gap-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32}");
+@source inline("gap-x-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32}");
+@source inline("gap-y-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32}");
+@source inline("space-x-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,reverse}");
+@source inline("space-y-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,reverse}");
+
+/* Sizing */
+@source inline("w-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto,full,min,max,fit}");
+@source inline("w-{1/2,1/3,2/3,1/4,2/4,3/4,1/5,2/5,3/5,4/5,1/6,2/6,3/6,4/6,5/6}");
+@source inline("min-w-{0,full,min,max,fit}");
+@source inline("max-w-{0,none,xs,sm,md,lg,xl,2xl,3xl,4xl,5xl,6xl,7xl,full,min,max,fit,prose}");
+@source inline("h-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto,full,min,max,fit}");
+@source inline("h-{1/2,1/3,2/3,1/4,2/4,3/4,1/5,2/5,3/5,4/5,1/6,2/6,3/6,4/6,5/6}");
+@source inline("min-h-{0,full,min,max,fit}");
+@source inline("max-h-{0,none,full,min,max,fit}");
+@source inline("size-{0,px,0.5,1,1.5,2,2.5,3,3.5,4,5,6,7,8,9,10,11,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,72,80,96,auto,full,min,max,fit}");
+
+/* Typography */
+@source inline("text-{xs,sm,base,lg,xl,2xl,3xl,4xl,5xl,6xl,7xl,8xl,9xl}");
+@source inline("text-{left,center,right,justify,start,end}");
+@source inline("font-{sans,serif,mono,thin,extralight,light,normal,medium,semibold,bold,extrabold,black}");
+@source inline("italic not-italic uppercase lowercase capitalize normal-case");
+@source inline("leading-{none,tight,snug,normal,relaxed,loose,3,4,5,6,7,8,9,10}");
+@source inline("tracking-{tighter,tight,normal,wide,wider,widest}");
+@source inline("underline overline line-through no-underline truncate antialiased subpixel-antialiased");
+@source inline("decoration-{auto,from-font,0,1,2,4,8,solid,double,dotted,dashed,wavy}");
+@source inline("underline-offset-{auto,0,1,2,4,8}");
+@source inline("text-{ellipsis,clip,wrap,nowrap,balance,pretty}");
+@source inline("line-clamp-{1,2,3,4,5,6,none}");
+
+/* Background Colors - Theme */
+@source inline("bg-{transparent,current,inherit,black,white}");
+@source inline("bg-{background,foreground,card,card-foreground,popover,popover-foreground}");
+@source inline("bg-{primary,primary-foreground,secondary,secondary-foreground}");
+@source inline("bg-{muted,muted-foreground,accent,accent-foreground}");
+@source inline("bg-{destructive,destructive-foreground,border,input,ring}");
+@source inline("bg-{sidebar,sidebar-foreground,sidebar-primary,sidebar-primary-foreground}");
+@source inline("bg-{sidebar-accent,sidebar-accent-foreground,sidebar-border,sidebar-ring}");
+@source inline("bg-chart-{1,2,3,4,5}");
+
+/* Background Colors - Palette */
+@source inline("bg-{slate,gray,zinc,neutral,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");
+
+/* Text Colors - Theme */
+@source inline("text-{transparent,current,inherit,black,white}");
+@source inline("text-{background,foreground,card,card-foreground,popover,popover-foreground}");
+@source inline("text-{primary,primary-foreground,secondary,secondary-foreground}");
+@source inline("text-{muted,muted-foreground,accent,accent-foreground}");
+@source inline("text-{destructive,destructive-foreground,border,input,ring}");
+
+/* Text Colors - Palette */
+@source inline("text-{slate,gray,zinc,neutral,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");
+
+/* Border Colors */
+@source inline("border-{transparent,current,inherit,black,white}");
+@source inline("border-{background,foreground,card,card-foreground,popover,popover-foreground}");
+@source inline("border-{primary,primary-foreground,secondary,secondary-foreground}");
+@source inline("border-{muted,muted-foreground,accent,accent-foreground}");
+@source inline("border-{destructive,destructive-foreground,border,input,ring}");
+@source inline("border-{slate,gray,zinc,red,orange,green,blue}-{200,300,400,500,600,700}");
+
+/* Ring Colors */
+@source inline("ring-{transparent,current,inherit,black,white}");
+@source inline("ring-{primary,secondary,destructive,muted,accent,ring}");
+
+/* Borders */
+@source inline("border border-0 border-2 border-4 border-8");
+@source inline("border-x border-x-0 border-x-2 border-x-4 border-x-8");
+@source inline("border-y border-y-0 border-y-2 border-y-4 border-y-8");
+@source inline("border-t border-t-0 border-t-2 border-t-4 border-t-8");
+@source inline("border-r border-r-0 border-r-2 border-r-4 border-r-8");
+@source inline("border-b border-b-0 border-b-2 border-b-4 border-b-8");
+@source inline("border-l border-l-0 border-l-2 border-l-4 border-l-8");
+@source inline("border-{solid,dashed,dotted,double,hidden,none,collapse,separate}");
+@source inline("rounded rounded-none rounded-sm rounded-md rounded-lg rounded-xl rounded-2xl rounded-3xl rounded-full");
+@source inline("rounded-t rounded-t-none rounded-t-sm rounded-t-md rounded-t-lg rounded-t-xl rounded-t-2xl rounded-t-3xl rounded-t-full");
+@source inline("rounded-r rounded-r-none rounded-r-sm rounded-r-md rounded-r-lg rounded-r-xl rounded-r-2xl rounded-r-3xl rounded-r-full");
+@source inline("rounded-b rounded-b-none rounded-b-sm rounded-b-md rounded-b-lg rounded-b-xl rounded-b-2xl rounded-b-3xl rounded-b-full");
+@source inline("rounded-l rounded-l-none rounded-l-sm rounded-l-md rounded-l-lg rounded-l-xl rounded-l-2xl rounded-l-3xl rounded-l-full");
+@source inline("rounded-tl rounded-tl-none rounded-tl-sm rounded-tl-md rounded-tl-lg rounded-tl-xl rounded-tl-2xl rounded-tl-3xl rounded-tl-full");
+@source inline("rounded-tr rounded-tr-none rounded-tr-sm rounded-tr-md rounded-tr-lg rounded-tr-xl rounded-tr-2xl rounded-tr-3xl rounded-tr-full");
+@source inline("rounded-bl rounded-bl-none rounded-bl-sm rounded-bl-md rounded-bl-lg rounded-bl-xl rounded-bl-2xl rounded-bl-3xl rounded-bl-full");
+@source inline("rounded-br rounded-br-none rounded-br-sm rounded-br-md rounded-br-lg rounded-br-xl rounded-br-2xl rounded-br-3xl rounded-br-full");
+@source inline("ring ring-0 ring-1 ring-2 ring-4 ring-8 ring-inset");
+@source inline("ring-offset-{0,1,2,4,8,background,white,black}");
+@source inline("outline outline-none outline-0 outline-1 outline-2 outline-4 outline-8 outline-dashed outline-dotted outline-double");
+@source inline("outline-offset-{0,1,2,4,8}");
+@source inline("divide-x divide-x-0 divide-x-2 divide-x-4 divide-x-8 divide-x-reverse");
+@source inline("divide-y divide-y-0 divide-y-2 divide-y-4 divide-y-8 divide-y-reverse");
+
+/* Flexbox */
+@source inline("flex inline-flex");
+@source inline("flex-{row,row-reverse,col,col-reverse,wrap,wrap-reverse,nowrap,1,auto,initial,none}");
+@source inline("grow grow-0 shrink shrink-0");
+@source inline("basis-{auto,full,0,1,2,3,4,5,6,7,8,9,10,11,12}");
+@source inline("basis-{1/2,1/3,2/3,1/4,2/4,3/4,1/5,2/5,3/5,4/5,1/6,2/6,3/6,4/6,5/6}");
+@source inline("justify-{normal,start,end,center,between,around,evenly,stretch}");
+@source inline("justify-items-{start,end,center,stretch}");
+@source inline("justify-self-{auto,start,end,center,stretch}");
+@source inline("items-{start,end,center,baseline,stretch}");
+@source inline("content-{normal,start,end,center,between,around,evenly,baseline,stretch}");
+@source inline("self-{auto,start,end,center,stretch,baseline}");
+@source inline("place-content-{start,end,center,between,around,evenly,baseline,stretch}");
+@source inline("place-items-{start,end,center,baseline,stretch}");
+@source inline("place-self-{auto,start,end,center,stretch}");
+@source inline("order-{1,2,3,4,5,6,7,8,9,10,11,12,first,last,none}");
+
+/* Grid */
+@source inline("grid inline-grid");
+@source inline("grid-cols-{1,2,3,4,5,6,7,8,9,10,11,12,none,subgrid}");
+@source inline("grid-rows-{1,2,3,4,5,6,7,8,9,10,11,12,none,subgrid}");
+@source inline("col-auto col-span-{1,2,3,4,5,6,7,8,9,10,11,12,full}");
+@source inline("col-start-{1,2,3,4,5,6,7,8,9,10,11,12,13,auto}");
+@source inline("col-end-{1,2,3,4,5,6,7,8,9,10,11,12,13,auto}");
+@source inline("row-auto row-span-{1,2,3,4,5,6,7,8,9,10,11,12,full}");
+@source inline("row-start-{1,2,3,4,5,6,7,auto}");
+@source inline("row-end-{1,2,3,4,5,6,7,auto}");
+@source inline("grid-flow-{row,col,dense,row-dense,col-dense}");
+@source inline("auto-cols-{auto,min,max,fr}");
+@source inline("auto-rows-{auto,min,max,fr}");
+
+/* Display & Visibility */
+@source inline("block inline-block inline hidden contents flow-root list-item visible collapse");
+@source inline("table inline-table table-auto table-fixed");
+@source inline("table-{caption,cell,column,column-group,footer-group,header-group,row-group,row}");
+@source inline("caption-{top,bottom}");
+
+/* Overflow (NO overflow-visible) */
+@source inline("overflow-{auto,hidden,clip,scroll}");
+@source inline("overflow-x-{auto,hidden,clip,scroll}");
+@source inline("overflow-y-{auto,hidden,clip,scroll}");
+@source inline("overscroll-{auto,contain,none}");
+@source inline("overscroll-x-{auto,contain,none}");
+@source inline("overscroll-y-{auto,contain,none}");
+@source inline("scroll-{auto,smooth}");
+@source inline("scrollbar-{thin,none}");
+@source inline("snap-{start,end,center,align-none,normal,always,none,x,y,both,mandatory,proximity}");
+
+/* Effects */
+@source inline("opacity-{0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100}");
+@source inline("shadow shadow-sm shadow-md shadow-lg shadow-xl shadow-2xl shadow-inner shadow-none");
+@source inline("blur blur-none blur-sm blur-md blur-lg blur-xl blur-2xl blur-3xl");
+@source inline("brightness-{0,50,75,90,95,100,105,110,125,150,200}");
+@source inline("contrast-{0,50,75,100,125,150,200}");
+@source inline("drop-shadow drop-shadow-sm drop-shadow-md drop-shadow-lg drop-shadow-xl drop-shadow-2xl drop-shadow-none");
+@source inline("grayscale grayscale-0 invert invert-0 sepia sepia-0");
+@source inline("hue-rotate-{0,15,30,60,90,180}");
+@source inline("saturate-{0,50,100,150,200}");
+@source inline("backdrop-blur backdrop-blur-none backdrop-blur-sm backdrop-blur-md backdrop-blur-lg backdrop-blur-xl backdrop-blur-2xl backdrop-blur-3xl");
+@source inline("backdrop-brightness-{0,50,75,90,95,100,105,110,125,150,200}");
+@source inline("backdrop-contrast-{0,50,75,100,125,150,200}");
+@source inline("backdrop-grayscale backdrop-grayscale-0 backdrop-invert backdrop-invert-0 backdrop-sepia backdrop-sepia-0");
+@source inline("backdrop-hue-rotate-{0,15,30,60,90,180}");
+@source inline("backdrop-opacity-{0,5,10,20,25,30,40,50,60,70,75,80,90,95,100}");
+@source inline("backdrop-saturate-{0,50,100,150,200}");
+
+/* Transitions & Animations */
+@source inline("transition transition-none transition-all transition-colors transition-opacity transition-shadow transition-transform");
+@source inline("duration-{0,75,100,150,200,300,500,700,1000}");
+@source inline("ease-{linear,in,out,in-out}");
+@source inline("delay-{0,75,100,150,200,300,500,700,1000}");
+@source inline("animate-{none,spin,ping,pulse,bounce}");
+
+/* Transforms (NO translate) */
+@source inline("scale-{0,50,75,90,95,100,105,110,125,150}");
+@source inline("scale-x-{0,50,75,90,95,100,105,110,125,150}");
+@source inline("scale-y-{0,50,75,90,95,100,105,110,125,150}");
+@source inline("rotate-{0,1,2,3,6,12,45,90,180}");
+@source inline("skew-x-{0,1,2,3,6,12}");
+@source inline("skew-y-{0,1,2,3,6,12}");
+@source inline("origin-{center,top,top-right,right,bottom-right,bottom,bottom-left,left,top-left}");
+
+/* Interactivity */
+@source inline("cursor-{auto,default,pointer,wait,text,move,help,not-allowed,none,grab,grabbing}");
+@source inline("select-{none,text,all,auto}");
+@source inline("resize resize-none resize-y resize-x");
+@source inline("touch-{auto,none,pan-x,pan-left,pan-right,pan-y,pan-up,pan-down,pinch-zoom,manipulation}");
+@source inline("appearance-none");
+
+/* Misc */
+@source inline("list-{none,disc,decimal,inside,outside}");
+@source inline("aspect-{auto,square,video}");
+@source inline("object-{contain,cover,fill,none,scale-down,bottom,center,left,left-bottom,left-top,right,right-bottom,right-top,top}");
+@source inline("break-normal break-words break-all break-keep");
+@source inline("hyphens-{none,manual,auto}");
+@source inline("whitespace-{normal,nowrap,pre,pre-line,pre-wrap,break-spaces}");
+@source inline("fill-{none,inherit,current,transparent,primary,secondary,destructive,muted,accent,foreground}");
+@source inline("stroke-{none,inherit,current,transparent,primary,secondary,destructive,muted,accent,foreground,0,1,2}");
+@source inline("sr-only not-sr-only");
+
+/* Variants - Hover */
+@source inline("hover:bg-{primary,secondary,accent,muted,destructive}");
+@source inline("hover:text-{primary,secondary,accent,muted,foreground}");
+@source inline("hover:border-{primary,secondary,accent,muted}");
+@source inline("hover:opacity-{50,75,100}");
+@source inline("hover:shadow hover:shadow-md hover:shadow-lg hover:shadow-xl");
+@source inline("hover:scale-{105,110}");
+
+/* Variants - Focus */
+@source inline("focus:ring focus:ring-2 focus:ring-4 focus:ring-primary focus:ring-secondary focus:ring-ring");
+@source inline("focus:outline-none focus:border-primary focus:border-ring");
+@source inline("focus-visible:ring focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-ring focus-visible:outline-none");
+
+/* Variants - Active & Disabled */
+@source inline("active:bg-primary active:bg-secondary active:bg-accent active:scale-95");
+@source inline("disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none");
+
+/* Variants - Dark mode */
+@source inline("dark:bg-{background,card,popover,primary,secondary,muted,accent,destructive}");
+@source inline("dark:text-{foreground,card-foreground,popover-foreground,primary,primary-foreground,secondary,secondary-foreground,muted,muted-foreground,accent,accent-foreground,destructive,destructive-foreground}");
+@source inline("dark:border-{border,input,primary,secondary,muted,accent,destructive}");
+@source inline("dark:ring-{ring,primary,secondary}");
+
+/* Variants - Responsive */
+@source inline("{sm,md,lg,xl,2xl}:{flex,hidden,block,inline-block,grid}");
+@source inline("{sm,md,lg,xl}:{flex-row,flex-col,flex-wrap,flex-nowrap}");
+@source inline("{sm,md,lg,xl,2xl}:gap-{2,4,6,8}");
+@source inline("{sm,md,lg,xl,2xl}:p-{2,4,6,8}");
+@source inline("{sm,md,lg,xl,2xl}:px-{4,6,8}");
+@source inline("{sm,md,lg,xl,2xl}:py-{4,6,8}");
+@source inline("{sm,md,lg,xl,2xl}:m-{2,4,6,8}");
+@source inline("{sm,md,lg,xl,2xl}:mx-{4,6,auto}");
+@source inline("{sm,md,lg,xl,2xl}:my-{4,6}");
+@source inline("{sm,md,lg,xl,2xl}:w-{full,auto,1/2,1/3,2/3,1/4,3/4}");
+@source inline("{sm,md,lg,xl,2xl}:text-{sm,base,lg,xl,2xl,3xl}");
+@source inline("{sm,md,lg,xl,2xl}:grid-cols-{1,2,3,4,6,12}");
