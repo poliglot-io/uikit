@@ -5,7 +5,6 @@
 import type { InlineConfig, Plugin, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { resolve } from "path";
 
 export interface ViteConfigOptions {
   /** Path to the preview-app source directory */
@@ -94,13 +93,6 @@ export function createViteConfig(options: ViteConfigOptions): InlineConfig {
       fs: {
         // Allow serving files from these directories
         allow: [previewAppPath, uikitPath, projectDir],
-      },
-    },
-    resolve: {
-      alias: {
-        // Resolve @poliglot-io/uikit subpaths to local uikit package
-        "@poliglot-io/uikit/icons": resolve(uikitPath, "dist/icons.js"),
-        "@poliglot-io/uikit": uikitPath,
       },
     },
     optimizeDeps: {
