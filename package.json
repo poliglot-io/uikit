@@ -1,6 +1,6 @@
 {
   "name": "@poliglot-io/uikit",
-  "version": "0.1.0-beta.3",
+  "version": "0.1.0-beta.4",
   "description": "UI components and build tooling for Poliglot matrix development",
   "type": "module",
   "main": "dist/index.js",
