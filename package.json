@@ -1,6 +1,6 @@
 {
   "name": "@poliglot-io/uikit",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "description": "UI components and build tooling for Poliglot matrix development",
   "type": "module",
   "main": "dist/index.js",
@@ -229,8 +229,9 @@
   "author": "Poliglot Inc.",
   "homepage": "https://github.com/poliglot-io/uikit",
   "scripts": {
-    "build": "npm run build:css && tsc",
+    "build": "npm run build:css && tsc && npm run build:preview-app",
     "build:css": "node scripts/build-css.js",
+    "build:preview-app": "node scripts/copy-preview-app.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "lint": "eslint .",
