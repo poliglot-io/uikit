@@ -59,7 +59,7 @@ function injectTailwindSource(projectDir: string, uikitPath: string): Plugin {
         // Inject @source for both user's project and UIKit components
         const sourceDirectives = [
           `@source "${projectDir}/**/*.{js,ts,jsx,tsx}";`,
-          `@source "${uikitPath}/src/components/**/*.{js,ts,jsx,tsx}";`,
+          `@source "${uikitPath}/dist/components/**/*.{js,ts,jsx,tsx}";`,
         ].join("\n");
 
         return code.replace(
@@ -99,7 +99,7 @@ export function createViteConfig(options: ViteConfigOptions): InlineConfig {
     resolve: {
       alias: {
         // Resolve @poliglot-io/uikit subpaths to local uikit package
-        "@poliglot-io/uikit/icons": resolve(uikitPath, "src/icons.ts"),
+        "@poliglot-io/uikit/icons": resolve(uikitPath, "dist/icons.js"),
         "@poliglot-io/uikit": uikitPath,
       },
     },

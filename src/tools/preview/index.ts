@@ -16,8 +16,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // Path to UIKit package root (relative to this file in dist/tools/preview/)
 const UIKIT_PATH = resolve(__dirname, "../../..");
 
-// Path to preview-app source - Vite processes TSX on the fly
-const PREVIEW_APP_PATH = resolve(UIKIT_PATH, "src/preview-app");
+// Path to preview-app — Vite processes TSX/CSS on the fly. The source
+// files are mirrored into dist/preview-app/ at build time by
+// scripts/copy-preview-app.js so consumers installing the npm package
+// (which only ships dist/) get the same files the in-repo dev flow
+// reads from src/.
+const PREVIEW_APP_PATH = resolve(UIKIT_PATH, "dist/preview-app");
 
 export interface StartPreviewOptions {
   port?: number;
