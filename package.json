@@ -1,6 +1,6 @@
 {
   "name": "@poliglot-io/uikit",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "description": "UI components and build tooling for Poliglot matrix development",
   "type": "module",
   "main": "dist/index.js",
@@ -296,12 +296,18 @@
     "recharts": "^2.15.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
-    "vaul": "^1.1.2"
+    "vaul": "^1.1.2",
+    "@tailwindcss/vite": "^4",
+    "@vitejs/plugin-react": "^4.3.0",
+    "commander": "^12.0.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.0.0",
+    "vite": "^6.0.0",
+    "yaml": "^2.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@tailwindcss/cli": "^4",
-    "@tailwindcss/vite": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^16.0.0",
@@ -310,9 +316,6 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^4.3.0",
-    "commander": "^12.0.0",
-    "esbuild": "^0.28.0",
     "eslint": "^9.0.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.0",
@@ -324,11 +327,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.3.0",
-    "typescript": "^5.0.0",
     "typescript-eslint": "^8.0.0",
-    "vite": "^6.0.0",
-    "vitest": "^3.0.0",
-    "yaml": "^2.4.0"
+    "vitest": "^3.0.0"
   },
   "files": [
     "dist",
