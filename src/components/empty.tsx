@@ -1,3 +1,10 @@
+/**
+ * Empty-state placeholder.
+ *
+ * Render when a list or table has no items. Provide `icon`,
+ * `title`, `description`, and optional action buttons as
+ * children. Useful both inline and as a full-section message.
+ */
 import * as React from "react";
 import { cn } from "../lib/utils";
 

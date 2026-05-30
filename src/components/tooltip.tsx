@@ -1,3 +1,10 @@
+/**
+ * Brief floating text hint shown on hover or focus.
+ *
+ * Compose with `TooltipProvider` (mount once near the app root),
+ * `Tooltip`, `TooltipTrigger`, and `TooltipContent`. For rich
+ * interactive content prefer `HoverCard` or `Popover`.
+ */
 "use client";
 
 import * as React from "react";

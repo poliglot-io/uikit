@@ -1,3 +1,10 @@
+/**
+ * Scrollable slideshow of items with prev/next controls.
+ *
+ * Wraps embla-carousel-react. Compose with `CarouselContent`,
+ * `CarouselItem`, `CarouselPrevious`, and `CarouselNext`.
+ * Supports horizontal or vertical orientation.
+ */
 "use client";
 
 import * as React from "react";

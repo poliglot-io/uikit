@@ -1,3 +1,9 @@
+/**
+ * Visual divider line.
+ *
+ * Defaults to horizontal; pass `orientation="vertical"` for a
+ * vertical divider (e.g. between toolbar groups).
+ */
 "use client";
 
 import * as React from "react";

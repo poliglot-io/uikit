@@ -1,3 +1,11 @@
+/**
+ * Anchored floating content surface.
+ *
+ * Richer than `Tooltip` (can contain interactive content) but
+ * not modal like `Dialog`. Compose with `PopoverTrigger` and
+ * `PopoverContent`. Use for date pickers, color pickers, and
+ * small forms.
+ */
 "use client";
 
 import * as React from "react";

@@ -1,3 +1,10 @@
+/**
+ * Modal dialog overlay.
+ *
+ * General-purpose modal for forms, confirmations, and larger
+ * content. For destructive confirmations prefer `AlertDialog`,
+ * which is harder to dismiss accidentally.
+ */
 "use client";
 
 import * as React from "react";

@@ -1,3 +1,10 @@
+/**
+ * Date picker grid.
+ *
+ * Wraps react-day-picker with the kit's styles. Use directly for
+ * inline date selection, or compose inside a `Popover` for a
+ * drop-down date input.
+ */
 "use client";
 
 import * as React from "react";

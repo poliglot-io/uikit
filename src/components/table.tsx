@@ -1,3 +1,10 @@
+/**
+ * Styled table primitives.
+ *
+ * Compose with `Table`, `TableHeader`, `TableBody`, `TableRow`,
+ * `TableHead`, `TableCell`, `TableCaption`, and `TableFooter`.
+ * Pair with TanStack Table for sorting, filtering, and pagination.
+ */
 "use client";
 
 import * as React from "react";

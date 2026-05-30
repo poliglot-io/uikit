@@ -1,3 +1,10 @@
+/**
+ * Resizable panel layout with drag handles.
+ *
+ * Compose with `ResizablePanelGroup` (container, horizontal or
+ * vertical), `ResizablePanel` (each pane), and `ResizableHandle`
+ * between panes. Use for IDE-style split views.
+ */
 "use client";
 
 import * as React from "react";

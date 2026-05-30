@@ -1,3 +1,10 @@
+/**
+ * Linear progress indicator.
+ *
+ * Pass `value` (0–100) to render a filled bar. Use for known-
+ * duration operations; for indeterminate progress prefer
+ * `Spinner` or `Skeleton`.
+ */
 "use client";
 
 import * as React from "react";

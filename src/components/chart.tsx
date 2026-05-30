@@ -1,3 +1,10 @@
+/**
+ * Recharts wrapper with themed colors and shared tooltip / legend.
+ *
+ * Provide a `ChartConfig` map (`{ key: { label, color, icon } }`)
+ * to `ChartContainer`; CSS variables are injected per theme so
+ * the same chart renders correctly in light and dark modes.
+ */
 "use client";
 
 import * as React from "react";

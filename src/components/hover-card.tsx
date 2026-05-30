@@ -1,3 +1,11 @@
+/**
+ * Floating info card displayed on hover.
+ *
+ * Like the Twitter/X profile preview pattern. Compose with
+ * `HoverCardTrigger` and `HoverCardContent`. Use for richer
+ * previews than `Tooltip` warrants but where a click isn't
+ * required.
+ */
 "use client";
 
 import * as React from "react";

@@ -1,3 +1,10 @@
+/**
+ * Side-slide modal panel (full-height drawer).
+ *
+ * Like `Drawer` but slides from any side (`top`, `right`,
+ * `bottom`, `left`). Use for app navigation, settings panels,
+ * and similar full-height surfaces.
+ */
 "use client";
 
 import * as React from "react";

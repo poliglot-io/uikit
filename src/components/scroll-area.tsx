@@ -1,3 +1,10 @@
+/**
+ * Custom-styled scrollable container with themed scrollbars.
+ *
+ * Replaces native scrollbars with thinner, themed ones that
+ * match the rest of the UI. Use when default scrollbar styling
+ * would clash with the surface.
+ */
 "use client";
 
 import * as React from "react";

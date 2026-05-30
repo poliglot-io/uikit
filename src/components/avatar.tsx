@@ -1,3 +1,10 @@
+/**
+ * Avatar image with a graceful fallback.
+ *
+ * Compose with `AvatarImage` (the photo) and `AvatarFallback`
+ * (rendered when the image fails to load, typically the user's
+ * initials).
+ */
 "use client";
 
 import * as React from "react";

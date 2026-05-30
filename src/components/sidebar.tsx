@@ -1,3 +1,11 @@
+/**
+ * Application sidebar with collapsible groups.
+ *
+ * Composes a full app shell: collapsible nav, header / footer
+ * slots, mobile sheet fallback, and persistent state. Compose
+ * with `SidebarProvider`, `Sidebar`, `SidebarHeader`,
+ * `SidebarContent`, `SidebarGroup`, `SidebarMenu`, etc.
+ */
 "use client";
 
 import * as React from "react";

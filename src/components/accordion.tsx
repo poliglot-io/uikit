@@ -1,3 +1,11 @@
+/**
+ * Vertically stacked, collapsible content panels.
+ *
+ * Compose with `AccordionItem` (one per row), `AccordionTrigger`
+ * (the clickable header), and `AccordionContent` (the body). Use
+ * `type="single"` for one-open-at-a-time, `type="multiple"`
+ * to allow several open at once.
+ */
 "use client";
 
 import * as React from "react";

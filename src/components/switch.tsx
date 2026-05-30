@@ -1,3 +1,9 @@
+/**
+ * Toggle switch (on/off boolean).
+ *
+ * Functionally equivalent to `Checkbox` but with switch
+ * affordance — use for settings and preferences.
+ */
 "use client";
 
 import * as React from "react";

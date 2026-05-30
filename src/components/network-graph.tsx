@@ -1,3 +1,11 @@
+/**
+ * Force-directed graph visualization based on cytoscape.
+ *
+ * Uses the fcose layout for clear node placement. Pass nodes
+ * and edges as data; interaction handlers cover selection,
+ * hover, and click. Used in matrix-author for dependency and
+ * relationship views.
+ */
 "use client";
 
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";

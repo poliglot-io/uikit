@@ -1,3 +1,10 @@
+/**
+ * Single-value dropdown selector.
+ *
+ * Compose with `SelectTrigger`, `SelectValue`, `SelectContent`,
+ * `SelectGroup`, `SelectLabel`, and `SelectItem`. For multi-
+ * value pickers prefer a combobox built on `Command`.
+ */
 "use client";
 
 import * as React from "react";

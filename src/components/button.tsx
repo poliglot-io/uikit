@@ -1,3 +1,11 @@
+/**
+ * Primary clickable action element.
+ *
+ * Variants control intent (`default`, `destructive`, `outline`,
+ * `secondary`, `ghost`, `link`) and sizes (`default`, `sm`,
+ * `lg`, `icon`). Pass `asChild` to render as a different element
+ * (e.g. an `<a>` for link-styled navigation).
+ */
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";

@@ -1,3 +1,10 @@
+/**
+ * Bottom-sheet / side-panel modal that slides in.
+ *
+ * Wraps vaul. Mobile-friendly alternative to `Dialog` — natively
+ * supports swipe-to-dismiss and a drag handle. Use for mobile
+ * menus, filter panels, and similar partial-screen surfaces.
+ */
 "use client";
 
 import * as React from "react";

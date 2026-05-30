@@ -1,3 +1,10 @@
+/**
+ * Render a Mermaid diagram from a chart-definition string.
+ *
+ * Pass the diagram source as `chart`. Theme-aware: re-renders
+ * when the active theme changes via `next-themes` so light / dark
+ * stay consistent with the rest of the UI.
+ */
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";

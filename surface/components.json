@@ -5,7 +5,7 @@
   "components": [
     {
       "file": "src/components/accordion.tsx",
-      "jsdoc": null,
+      "jsdoc": "Vertically stacked, collapsible content panels.\n\nCompose with `AccordionItem` (one per row), `AccordionTrigger`\n(the clickable header), and `AccordionContent` (the body). Use\n`type=\"single\"` for one-open-at-a-time, `type=\"multiple\"`\nto allow several open at once.",
       "exports": [
         {
           "name": "Accordion",
@@ -32,7 +32,7 @@
     },
     {
       "file": "src/components/alert-dialog.tsx",
-      "jsdoc": null,
+      "jsdoc": "Modal dialog that interrupts the user and expects a response.\n\nUse for destructive confirmations and other interactions the\nuser shouldn't dismiss casually. For general modals prefer\n`Dialog`; this one blocks dismissal-by-overlay-click by default.",
       "exports": [
         {
           "name": "AlertDialog",
@@ -94,7 +94,7 @@
     },
     {
       "file": "src/components/alert.tsx",
-      "jsdoc": null,
+      "jsdoc": "Inline callout displaying an important message.\n\nVariants: `default` for neutral info, `destructive` for errors\nand warnings. Compose with `AlertTitle` and `AlertDescription`.",
       "exports": [
         {
           "name": "Alert",
@@ -127,7 +127,7 @@
     },
     {
       "file": "src/components/aspect-ratio.tsx",
-      "jsdoc": null,
+      "jsdoc": "Constrain a child to a fixed aspect ratio.\n\nUseful for images, videos, and iframes that should maintain\ntheir shape across container widths. Pass `ratio={16 / 9}` or\nany numeric width/height ratio.",
       "exports": [
         {
           "name": "AspectRatio",
@@ -139,7 +139,7 @@
     },
     {
       "file": "src/components/avatar.tsx",
-      "jsdoc": null,
+      "jsdoc": "Avatar image with a graceful fallback.\n\nCompose with `AvatarImage` (the photo) and `AvatarFallback`\n(rendered when the image fails to load, typically the user's\ninitials).",
       "exports": [
         {
           "name": "Avatar",
@@ -161,7 +161,7 @@
     },
     {
       "file": "src/components/badge.tsx",
-      "jsdoc": null,
+      "jsdoc": "Small inline label / status indicator.\n\nUseful for counts, statuses, and category tags inline with\ntext. Variants: `default`, `secondary`, `destructive`, `outline`.",
       "exports": [
         {
           "name": "Badge",
@@ -189,7 +189,7 @@
     },
     {
       "file": "src/components/breadcrumb.tsx",
-      "jsdoc": null,
+      "jsdoc": "Hierarchical breadcrumb navigation.\n\nShows the user's location inside a multi-level structure.\nCompose with `BreadcrumbList`, `BreadcrumbItem`,\n`BreadcrumbLink`, `BreadcrumbSeparator`, and\n`BreadcrumbPage` for the final crumb.",
       "exports": [
         {
           "name": "Breadcrumb",
@@ -231,7 +231,7 @@
     },
     {
       "file": "src/components/button.tsx",
-      "jsdoc": null,
+      "jsdoc": "Primary clickable action element.\n\nVariants control intent (`default`, `destructive`, `outline`,\n`secondary`, `ghost`, `link`) and sizes (`default`, `sm`,\n`lg`, `icon`). Pass `asChild` to render as a different element\n(e.g. an `<a>` for link-styled navigation).",
       "exports": [
         {
           "name": "Button",
@@ -271,7 +271,7 @@
     },
     {
       "file": "src/components/calendar.tsx",
-      "jsdoc": null,
+      "jsdoc": "Date picker grid.\n\nWraps react-day-picker with the kit's styles. Use directly for\ninline date selection, or compose inside a `Popover` for a\ndrop-down date input.",
       "exports": [
         {
           "name": "Calendar",
@@ -288,7 +288,7 @@
     },
     {
       "file": "src/components/card.tsx",
-      "jsdoc": null,
+      "jsdoc": "Container for grouped, self-contained content.\n\nCompose with `CardHeader`, `CardTitle`, `CardDescription`,\n`CardContent`, and `CardFooter`. Use for dashboard tiles,\nlist items with rich content, and similar surfaces.",
       "exports": [
         {
           "name": "Card",
@@ -330,7 +330,7 @@
     },
     {
       "file": "src/components/carousel.tsx",
-      "jsdoc": null,
+      "jsdoc": "Scrollable slideshow of items with prev/next controls.\n\nWraps embla-carousel-react. Compose with `CarouselContent`,\n`CarouselItem`, `CarouselPrevious`, and `CarouselNext`.\nSupports horizontal or vertical orientation.",
       "exports": [
         {
           "name": "Carousel",
@@ -367,7 +367,7 @@
     },
     {
       "file": "src/components/chart.tsx",
-      "jsdoc": null,
+      "jsdoc": "Recharts wrapper with themed colors and shared tooltip / legend.\n\nProvide a `ChartConfig` map (`{ key: { label, color, icon } }`)\nto `ChartContainer`; CSS variables are injected per theme so\nthe same chart renders correctly in light and dark modes.",
       "exports": [
         {
           "name": "ChartConfig",
@@ -409,7 +409,7 @@
     },
     {
       "file": "src/components/checkbox.tsx",
-      "jsdoc": null,
+      "jsdoc": "Toggleable boolean input.",
       "exports": [
         {
           "name": "Checkbox",
@@ -421,7 +421,7 @@
     },
     {
       "file": "src/components/collapsible.tsx",
-      "jsdoc": null,
+      "jsdoc": "Expand/collapse for a single piece of content.\n\nSimpler than `Accordion` — one trigger, one panel, no\nsingle-vs-multiple semantics. Compose with `CollapsibleTrigger`\nand `CollapsibleContent`.",
       "exports": [
         {
           "name": "Collapsible",
@@ -443,7 +443,7 @@
     },
     {
       "file": "src/components/command.tsx",
-      "jsdoc": null,
+      "jsdoc": "Searchable command palette / typeahead menu.\n\nWraps cmdk. Compose with `CommandInput` (search box),\n`CommandList`, `CommandGroup`, `CommandItem`, and\n`CommandEmpty` (shown when no items match). Use inside a\n`Dialog` for the spotlight-style ⌘K palette pattern.",
       "exports": [
         {
           "name": "Command",
@@ -495,7 +495,7 @@
     },
     {
       "file": "src/components/context-menu.tsx",
-      "jsdoc": null,
+      "jsdoc": "Right-click contextual menu surface.\n\nCompose with `ContextMenuTrigger` (the right-clickable area)\nand `ContextMenuContent`, plus `ContextMenuItem` /\n`ContextMenuSeparator` / `ContextMenuSub` for the menu body.",
       "exports": [
         {
           "name": "ContextMenu",
@@ -577,7 +577,7 @@
     },
     {
       "file": "src/components/dialog.tsx",
-      "jsdoc": null,
+      "jsdoc": "Modal dialog overlay.\n\nGeneral-purpose modal for forms, confirmations, and larger\ncontent. For destructive confirmations prefer `AlertDialog`,\nwhich is harder to dismiss accidentally.",
       "exports": [
         {
           "name": "Dialog",
@@ -634,7 +634,7 @@
     },
     {
       "file": "src/components/drawer.tsx",
-      "jsdoc": null,
+      "jsdoc": "Bottom-sheet / side-panel modal that slides in.\n\nWraps vaul. Mobile-friendly alternative to `Dialog` — natively\nsupports swipe-to-dismiss and a drag handle. Use for mobile\nmenus, filter panels, and similar partial-screen surfaces.",
       "exports": [
         {
           "name": "Drawer",
@@ -691,7 +691,7 @@
     },
     {
       "file": "src/components/dropdown-menu.tsx",
-      "jsdoc": null,
+      "jsdoc": "Menu of actions or links anchored to a trigger.\n\nCompose with `DropdownMenuTrigger`, `DropdownMenuContent`,\nand items (`DropdownMenuItem`, `DropdownMenuCheckboxItem`,\n`DropdownMenuRadioItem`, `DropdownMenuSub`,\n`DropdownMenuSeparator`).",
       "exports": [
         {
           "name": "DropdownMenu",
@@ -773,7 +773,7 @@
     },
     {
       "file": "src/components/empty.tsx",
-      "jsdoc": null,
+      "jsdoc": "Empty-state placeholder.\n\nRender when a list or table has no items. Provide `icon`,\n`title`, `description`, and optional action buttons as\nchildren. Useful both inline and as a full-section message.",
       "exports": [
         {
           "name": "Empty",
@@ -790,7 +790,7 @@
     },
     {
       "file": "src/components/form.tsx",
-      "jsdoc": null,
+      "jsdoc": "react-hook-form integration with the kit's input primitives.\n\nCompose with `Form` (wraps `FormProvider`), `FormField` (binds\nto a field), `FormItem`, `FormLabel`, `FormControl`,\n`FormDescription`, and `FormMessage`. Automatically wires\nids, error states, and aria attributes.",
       "exports": [
         {
           "name": "Form",
@@ -837,7 +837,7 @@
     },
     {
       "file": "src/components/hover-card.tsx",
-      "jsdoc": null,
+      "jsdoc": "Floating info card displayed on hover.\n\nLike the Twitter/X profile preview pattern. Compose with\n`HoverCardTrigger` and `HoverCardContent`. Use for richer\npreviews than `Tooltip` warrants but where a click isn't\nrequired.",
       "exports": [
         {
           "name": "HoverCard",
@@ -859,7 +859,7 @@
     },
     {
       "file": "src/components/input-otp.tsx",
-      "jsdoc": null,
+      "jsdoc": "One-time-password / multi-character verification code input.\n\nCompose with `InputOTPGroup` and `InputOTPSlot`. Supports any\nnumber of slots; `InputOTPSeparator` adds a visual divider\nbetween groups (e.g. `123 456`).",
       "exports": [
         {
           "name": "InputOTP",
@@ -886,7 +886,7 @@
     },
     {
       "file": "src/components/input.tsx",
-      "jsdoc": null,
+      "jsdoc": "Single-line text input.",
       "exports": [
         {
           "name": "Input",
@@ -898,7 +898,7 @@
     },
     {
       "file": "src/components/label.tsx",
-      "jsdoc": null,
+      "jsdoc": "Form field label.\n\nAccessible by default — pair with `htmlFor` matching the\ninput's `id`, or render inside a `FormItem` to wire\nautomatically.",
       "exports": [
         {
           "name": "Label",
@@ -910,7 +910,7 @@
     },
     {
       "file": "src/components/menubar.tsx",
-      "jsdoc": null,
+      "jsdoc": "Application-style menu bar with nested menus.\n\nThe File / Edit / View / … pattern of desktop apps. Compose\nwith `MenubarMenu`, `MenubarTrigger`, `MenubarContent`,\n`MenubarItem`, `MenubarSub`, `MenubarRadioGroup`, etc.",
       "exports": [
         {
           "name": "Menubar",
@@ -997,7 +997,7 @@
     },
     {
       "file": "src/components/mermaid.tsx",
-      "jsdoc": null,
+      "jsdoc": "Render a Mermaid diagram from a chart-definition string.\n\nPass the diagram source as `chart`. Theme-aware: re-renders\nwhen the active theme changes via `next-themes` so light / dark\nstay consistent with the rest of the UI.",
       "exports": [
         {
           "name": "Mermaid",
@@ -1009,7 +1009,7 @@
     },
     {
       "file": "src/components/navigation-menu.tsx",
-      "jsdoc": null,
+      "jsdoc": "Top-level site navigation with hover- or click-triggered submenus.\n\nCompose with `NavigationMenuList`, `NavigationMenuItem`,\n`NavigationMenuTrigger`, `NavigationMenuContent`, and\n`NavigationMenuLink`. Built for marketing-site headers.",
       "exports": [
         {
           "name": "NavigationMenu",
@@ -1061,7 +1061,7 @@
     },
     {
       "file": "src/components/network-graph.tsx",
-      "jsdoc": null,
+      "jsdoc": "Force-directed graph visualization based on cytoscape.\n\nUses the fcose layout for clear node placement. Pass nodes\nand edges as data; interaction handlers cover selection,\nhover, and click. Used in matrix-author for dependency and\nrelationship views.",
       "exports": [
         {
           "name": "GraphEdge",
@@ -1088,7 +1088,7 @@
     },
     {
       "file": "src/components/pagination.tsx",
-      "jsdoc": null,
+      "jsdoc": "Page navigation control.\n\nCompose with `PaginationContent`, `PaginationItem`,\n`PaginationPrevious`, `PaginationNext`, `PaginationLink`,\nand `PaginationEllipsis` for skipped ranges.",
       "exports": [
         {
           "name": "Pagination",
@@ -1130,7 +1130,7 @@
     },
     {
       "file": "src/components/popover.tsx",
-      "jsdoc": null,
+      "jsdoc": "Anchored floating content surface.\n\nRicher than `Tooltip` (can contain interactive content) but\nnot modal like `Dialog`. Compose with `PopoverTrigger` and\n`PopoverContent`. Use for date pickers, color pickers, and\nsmall forms.",
       "exports": [
         {
           "name": "Popover",
@@ -1157,7 +1157,7 @@
     },
     {
       "file": "src/components/progress.tsx",
-      "jsdoc": null,
+      "jsdoc": "Linear progress indicator.\n\nPass `value` (0–100) to render a filled bar. Use for known-\nduration operations; for indeterminate progress prefer\n`Spinner` or `Skeleton`.",
       "exports": [
         {
           "name": "Progress",
@@ -1169,7 +1169,7 @@
     },
     {
       "file": "src/components/radio-group.tsx",
-      "jsdoc": null,
+      "jsdoc": "Group of mutually-exclusive radio buttons.\n\nCompose with `RadioGroupItem`. The group binds the selected\nvalue across its items.",
       "exports": [
         {
           "name": "RadioGroup",
@@ -1186,7 +1186,7 @@
     },
     {
       "file": "src/components/resizable.tsx",
-      "jsdoc": null,
+      "jsdoc": "Resizable panel layout with drag handles.\n\nCompose with `ResizablePanelGroup` (container, horizontal or\nvertical), `ResizablePanel` (each pane), and `ResizableHandle`\nbetween panes. Use for IDE-style split views.",
       "exports": [
         {
           "name": "ResizableHandle",
@@ -1208,7 +1208,7 @@
     },
     {
       "file": "src/components/scroll-area.tsx",
-      "jsdoc": null,
+      "jsdoc": "Custom-styled scrollable container with themed scrollbars.\n\nReplaces native scrollbars with thinner, themed ones that\nmatch the rest of the UI. Use when default scrollbar styling\nwould clash with the surface.",
       "exports": [
         {
           "name": "ScrollArea",
@@ -1225,7 +1225,7 @@
     },
     {
       "file": "src/components/select.tsx",
-      "jsdoc": null,
+      "jsdoc": "Single-value dropdown selector.\n\nCompose with `SelectTrigger`, `SelectValue`, `SelectContent`,\n`SelectGroup`, `SelectLabel`, and `SelectItem`. For multi-\nvalue pickers prefer a combobox built on `Command`.",
       "exports": [
         {
           "name": "Select",
@@ -1282,7 +1282,7 @@
     },
     {
       "file": "src/components/separator.tsx",
-      "jsdoc": null,
+      "jsdoc": "Visual divider line.\n\nDefaults to horizontal; pass `orientation=\"vertical\"` for a\nvertical divider (e.g. between toolbar groups).",
       "exports": [
         {
           "name": "Separator",
@@ -1294,7 +1294,7 @@
     },
     {
       "file": "src/components/sheet.tsx",
-      "jsdoc": null,
+      "jsdoc": "Side-slide modal panel (full-height drawer).\n\nLike `Drawer` but slides from any side (`top`, `right`,\n`bottom`, `left`). Use for app navigation, settings panels,\nand similar full-height surfaces.",
       "exports": [
         {
           "name": "Sheet",
@@ -1341,7 +1341,7 @@
     },
     {
       "file": "src/components/sidebar.tsx",
-      "jsdoc": null,
+      "jsdoc": "Application sidebar with collapsible groups.\n\nComposes a full app shell: collapsible nav, header / footer\nslots, mobile sheet fallback, and persistent state. Compose\nwith `SidebarProvider`, `Sidebar`, `SidebarHeader`,\n`SidebarContent`, `SidebarGroup`, `SidebarMenu`, etc.",
       "exports": [
         {
           "name": "Sidebar",
@@ -1486,7 +1486,7 @@
     },
     {
       "file": "src/components/skeleton.tsx",
-      "jsdoc": null,
+      "jsdoc": "Animated placeholder shape shown while content loads.\n\nSize and shape via className (e.g. `h-4 w-32`). Prefer over\nblank space to hint at incoming content's layout.",
       "exports": [
         {
           "name": "Skeleton",
@@ -1498,7 +1498,7 @@
     },
     {
       "file": "src/components/slider.tsx",
-      "jsdoc": null,
+      "jsdoc": "Range input with one or two thumbs.\n\nPass a single number for a single-value slider, or an array\nof two for a range. Supports min / max / step.",
       "exports": [
         {
           "name": "Slider",
@@ -1510,7 +1510,7 @@
     },
     {
       "file": "src/components/sonner.tsx",
-      "jsdoc": null,
+      "jsdoc": "Toast notifications, themed for the kit.\n\nRe-exports sonner's `Toaster` (mount once near the app root)\nand `toast()` (call from anywhere to show a notification).\nTheme-aware via `next-themes`.",
       "exports": [
         {
           "name": "Toaster",
@@ -1522,7 +1522,7 @@
     },
     {
       "file": "src/components/spinner.tsx",
-      "jsdoc": null,
+      "jsdoc": "Loading indicator (animated spin icon).\n\nSizes via className (`size-4`, `size-6`, etc.). Use for\nindeterminate progress; for known-duration operations prefer\n`Progress`.",
       "exports": [
         {
           "name": "Spinner",
@@ -1534,7 +1534,7 @@
     },
     {
       "file": "src/components/switch.tsx",
-      "jsdoc": null,
+      "jsdoc": "Toggle switch (on/off boolean).\n\nFunctionally equivalent to `Checkbox` but with switch\naffordance — use for settings and preferences.",
       "exports": [
         {
           "name": "Switch",
@@ -1546,7 +1546,7 @@
     },
     {
       "file": "src/components/table.tsx",
-      "jsdoc": null,
+      "jsdoc": "Styled table primitives.\n\nCompose with `Table`, `TableHeader`, `TableBody`, `TableRow`,\n`TableHead`, `TableCell`, `TableCaption`, and `TableFooter`.\nPair with TanStack Table for sorting, filtering, and pagination.",
       "exports": [
         {
           "name": "Table",
@@ -1593,7 +1593,7 @@
     },
     {
       "file": "src/components/tabs.tsx",
-      "jsdoc": null,
+      "jsdoc": "Tabbed content sections.\n\nCompose with `TabsList`, `TabsTrigger`, and `TabsContent`.\nEach trigger's `value` maps to its content panel.",
       "exports": [
         {
           "name": "Tabs",
@@ -1620,7 +1620,7 @@
     },
     {
       "file": "src/components/textarea.tsx",
-      "jsdoc": null,
+      "jsdoc": "Multi-line text input.",
       "exports": [
         {
           "name": "Textarea",
@@ -1632,7 +1632,7 @@
     },
     {
       "file": "src/components/toggle-group.tsx",
-      "jsdoc": null,
+      "jsdoc": "Group of related toggle buttons.\n\n`type=\"single\"` enforces one active item (radio-like);\n`type=\"multiple\"` allows independent toggles (checkbox-like).\nCompose with `ToggleGroupItem`.",
       "exports": [
         {
           "name": "ToggleGroup",
@@ -1649,7 +1649,7 @@
     },
     {
       "file": "src/components/toggle.tsx",
-      "jsdoc": null,
+      "jsdoc": "Single toggle button (pressed / not pressed).\n\nFor a group of related toggles prefer `ToggleGroup`.",
       "exports": [
         {
           "name": "Toggle",
@@ -1684,7 +1684,7 @@
     },
     {
       "file": "src/components/tooltip.tsx",
-      "jsdoc": null,
+      "jsdoc": "Brief floating text hint shown on hover or focus.\n\nCompose with `TooltipProvider` (mount once near the app root),\n`Tooltip`, `TooltipTrigger`, and `TooltipContent`. For rich\ninteractive content prefer `HoverCard` or `Popover`.",
       "exports": [
         {
           "name": "Tooltip",

@@ -1,3 +1,6 @@
+/**
+ * Toggleable boolean input.
+ */
 "use client";
 
 import * as React from "react";

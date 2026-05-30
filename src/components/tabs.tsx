@@ -1,3 +1,9 @@
+/**
+ * Tabbed content sections.
+ *
+ * Compose with `TabsList`, `TabsTrigger`, and `TabsContent`.
+ * Each trigger's `value` maps to its content panel.
+ */
 "use client";
 
 import * as React from "react";

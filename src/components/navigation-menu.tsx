@@ -1,3 +1,10 @@
+/**
+ * Top-level site navigation with hover- or click-triggered submenus.
+ *
+ * Compose with `NavigationMenuList`, `NavigationMenuItem`,
+ * `NavigationMenuTrigger`, `NavigationMenuContent`, and
+ * `NavigationMenuLink`. Built for marketing-site headers.
+ */
 "use client";
 
 import * as React from "react";

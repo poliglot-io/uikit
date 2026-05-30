@@ -1,3 +1,11 @@
+/**
+ * Menu of actions or links anchored to a trigger.
+ *
+ * Compose with `DropdownMenuTrigger`, `DropdownMenuContent`,
+ * and items (`DropdownMenuItem`, `DropdownMenuCheckboxItem`,
+ * `DropdownMenuRadioItem`, `DropdownMenuSub`,
+ * `DropdownMenuSeparator`).
+ */
 "use client";
 
 import * as React from "react";

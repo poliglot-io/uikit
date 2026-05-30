@@ -1,3 +1,10 @@
+/**
+ * Loading indicator (animated spin icon).
+ *
+ * Sizes via className (`size-4`, `size-6`, etc.). Use for
+ * indeterminate progress; for known-duration operations prefer
+ * `Progress`.
+ */
 import { Loader2Icon } from "lucide-react";
 
 import { cn } from "../lib/utils";

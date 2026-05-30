@@ -1,3 +1,10 @@
+/**
+ * Modal dialog that interrupts the user and expects a response.
+ *
+ * Use for destructive confirmations and other interactions the
+ * user shouldn't dismiss casually. For general modals prefer
+ * `Dialog`; this one blocks dismissal-by-overlay-click by default.
+ */
 "use client";
 
 import * as React from "react";

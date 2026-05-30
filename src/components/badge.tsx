@@ -1,3 +1,9 @@
+/**
+ * Small inline label / status indicator.
+ *
+ * Useful for counts, statuses, and category tags inline with
+ * text. Variants: `default`, `secondary`, `destructive`, `outline`.
+ */
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";

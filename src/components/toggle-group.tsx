@@ -1,3 +1,10 @@
+/**
+ * Group of related toggle buttons.
+ *
+ * `type="single"` enforces one active item (radio-like);
+ * `type="multiple"` allows independent toggles (checkbox-like).
+ * Compose with `ToggleGroupItem`.
+ */
 "use client";
 
 import * as React from "react";
