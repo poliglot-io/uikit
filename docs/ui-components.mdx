@@ -1,0 +1,172 @@
+---
+title: Building UI Components
+description: Rendering entities as visual interfaces in the IDE.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+
+When Poliglot OS works with your domain, the data lives as entities in the knowledge graph. UI components give those entities a visual representation. A `Person` entity becomes a profile card. A `WorkOrder` becomes a detail view with status, assignee, and history. Components are how your operating model becomes something you can see and interact with.
+
+This guide covers how to think about the component model.
+
+## Server Components Only
+
+All third-party UI components are React Server Components (RSC). This is a deliberate security decision: components run on the server, produce serialized output, and stream to the client. No untrusted JavaScript executes in your browser.
+
+This means:
+
+- No hooks (`useState`, `useEffect`, `useRef`)
+- No event handlers (`onClick`, `onSubmit`, `onChange`)
+- No client-side state or lifecycle
+- No `"use client"` directive
+
+Your components receive props and return JSX. That's it. For interactive elements (buttons, inputs, forms, dialogs), use the pre-built components from [`@poliglot-io/uikit`](/docs/arch/uikit), which are part of the trusted platform codebase.
+
+```tsx
+import { Card, Badge } from "@poliglot-io/uikit";
+
+interface PersonCardProps {
+  name: string;
+  role: string;
+  active: boolean;
+}
+
+export function PersonCard({ name, role, active }: PersonCardProps) {
+  return (
+    <Card className="p-4 rounded-lg bg-card">
+      <h3 className="text-lg font-semibold text-foreground">{name}</h3>
+      <p className="text-sm text-muted-foreground">{role}</p>
+      <Badge variant={active ? "default" : "secondary"}>
+        {active ? "Active" : "Inactive"}
+      </Badge>
+    </Card>
+  );
+}
+```
+
+<Callout type="info">
+  For now, UI components are strictly visual interfaces. We are in the process
+  of designing the system for you to manually execute actions against the
+  operating system, but for now everything is driven by Poliglot OS.
+</Callout>
+
+## The Component Model
+
+Three concepts link your React components to your domain entities:
+
+**Bundle**: the compiled JavaScript artifact containing your components. One bundle per matrix, produced by the `poliglot-ui` build tool.
+
+**Component**: a named export from your bundle. Each component maps to an export name (e.g., `PersonCard`, `OrderDetail`).
+
+**Renderable**: the binding between a component and a domain class. A renderable declares "this component renders entities of this type" and includes a SPARQL query that extracts props from the entity.
+
+```turtle
+# spec/components.ttl
+# Declare the renderable: PersonDetailComponent renders people:Person entities
+people:PersonDetailView
+    a plgt-ui:Renderable ;
+    plgt-ui:forType people:Person ;
+    plgt-ui:component people:PersonDetailComponent ;
+    plgt-ui:propsQuery [
+        a plgt:JSONFunction ;
+        plgt:fromJSON <script://scripts/person-props.rq>
+    ] .
+```
+
+```sparql
+# spec/scripts/person-props.rq
+PREFIX people: <https://example.org/spec/people#>
+
+JSON {
+    "name": ?name,
+    "email": ?email,
+    "department": ?department
+} WHERE {
+    ?subject people:name ?name .
+    OPTIONAL { ?subject people:email ?email . }
+    OPTIONAL { ?subject people:department ?department . }
+}
+```
+
+The `plgt-ui:propsQuery` is a JSON DSL query that runs with `?subject` bound to the entity being rendered. It extracts properties from the graph and returns a JSON object that becomes the component's props.
+
+## How Rendering Works
+
+When an entity needs to be rendered (either because Poliglot OS decides to show it or because you click on it), the flow is:
+
+1. Poliglot OS looks up the entity's type in the graph
+2. The component registry finds the most specific `plgt-ui:Renderable` for that type (walking up the class hierarchy if needed)
+3. The props query executes against the entity, producing a JSON object
+4. The component renders server-side in an isolated sandbox with those props
+5. The serialized output streams to your browser
+
+If no renderable exists for an entity's type, Poliglot OS falls back to a default graph visualization that shows the entity's properties and relationships as an interactive network.
+
+## The @poliglot-io/uikit Library
+
+Your components are built on top of [`@poliglot-io/uikit`](/docs/arch/uikit), a library of 50+ React components based on shadcn/ui and Radix UI primitives. These are the only external imports allowed in your components (besides React itself).
+
+Available components include: Card, Badge, Button, Input, Dialog, Table, Avatar, Accordion, Tabs, Select, Form, Progress, Separator, Tooltip, and many more. See the [full component reference](/docs/arch/uikit/components) for props, variants, and usage examples.
+
+All styling uses Tailwind CSS utility classes. Custom CSS files, inline styles, and CSS-in-JS are not allowed. This constraint keeps the visual language consistent across all components in a workspace, regardless of which matrix provided them.
+
+## Security Constraints
+
+The component system enforces security through multiple layers. Understanding these constraints helps you write components that pass validation on the first try. For the complete allowlists, blocklists, and validation error types, see the [UIKit constraints reference](/docs/arch/uikit/components#constraints).
+
+**Allowed imports**: only [`@poliglot-io/uikit`](/docs/arch/uikit/components) and `react`. No other npm packages.
+
+**Allowed HTML elements**: content elements (div, span, p, headings, lists, tables, etc.) and media elements with URL validation (img, video, audio). For form elements and interactive components, use [`@poliglot-io/uikit`](/docs/arch/uikit/components).
+
+**Blocked HTML elements**: `script`, `iframe`, `form`, `input`, `button`, `textarea`, `select`, `style`, `link`, and other elements that could execute scripts, load external content, or capture user input outside of Poliglot OS's control.
+
+**Tailwind restrictions**: positioning classes (`fixed`, `absolute`, `z-*`), viewport-relative sizing (`w-screen`, `h-screen`), and arbitrary value syntax (e.g., `bg-[...]`) are blocked to prevent components from breaking out of their container.
+
+**Bundle size**: 2MB maximum per matrix.
+
+<Callout type="info">
+  These constraints exist because components from any installed matrix run in
+  the same workspace. A malicious or poorly written component shouldn't be able
+  to capture credentials, overlay phishing content, or execute arbitrary code.
+  The RSC model and validation pipeline ensure that components are pure
+  rendering functions.
+</Callout>
+
+## The Development Workflow
+
+```bash
+# Initialize a component project
+plgt init my-components
+
+# Write your components in src/components/
+# Export them from src/components/index.ts
+
+# Build the component bundle
+poliglot-ui build
+
+# Package and install (includes components as artifacts)
+plgt build && plgt install --workspace my-workspace
+```
+
+The `poliglot-ui build` tool compiles your TypeScript components, validates them against the security constraints, and produces a bundle artifact. The bundle is included in your matrix package alongside the spec files.
+
+## Designing Components Around Entities
+
+Think about components as views on your domain entities, not as standalone UI pages. Each renderable binds to a specific class in your ontology. When Poliglot OS encounters an entity of that type, your component is what you see.
+
+A few design considerations:
+
+- **One renderable per class**: Poliglot OS selects the most specific component for an entity's type. If you define a renderable for `WorkOrder` and another for `ElectricalWorkOrder` (a subclass), electrical work orders get the specialized view.
+- **Props come from the graph**: your props query determines what data the component receives. Design it to extract exactly what the component needs, including data from related entities (via SPARQL joins).
+- **Nested data is supported**: the SPARQL JSON syntax supports nested arrays (e.g., a list of friends within a person view). Use this for related entities that should appear inline.
+- **Graceful handling of optional data**: use `OPTIONAL` in your props query for properties that may not exist. Design your component to handle missing props.
+
+## Summary
+
+- **RSC only**: components are pure render functions with no client-side execution
+- **Three-layer model**: Bundle (compiled JS), Component (named export), Renderable (binds component to domain class with props query)
+- **Props from the graph**: SPARQL JSON queries extract entity data as component props
+  - **@poliglot-io/uikit[@poliglot-io/uikit](/docs/arch/uikit) as foundation**: 50+ pre-built components, Tailwind CSS styling
+- **@poliglot-io/uikit as foundation**: 50+ pre-built components, Tailwind CSS styling
+- **Security through constraints**: import restrictions, element allowlists, Tailwind validation, bundle size limits
+- **Type-based resolution**: Poliglot OS walks the class hierarchy to find the most specific component for each entity

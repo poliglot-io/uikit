@@ -1,0 +1,131 @@
+---
+title: UIKit
+description: React component library for matrix UI development.
+---
+
+`@poliglot-io/uikit` is the component library for building matrix UIs. It provides a set of React Server Components that matrices can register to render domain entities in the Poliglot workspace.
+
+## Installation
+
+Add `@poliglot-io/uikit` to your matrix project:
+
+```bash
+npm install @poliglot-io/uikit react react-dom
+```
+
+Then declare a `components:` block on the matrix in `poliglot.yml` so `plgt build` knows where to find the source:
+
+```yaml
+matrix:
+  my-matrix:
+    path: "./"
+    spec:
+      - ./spec
+    components:
+      source: ./src/components
+      entry: index.ts
+    outputDir: ./.matrix
+```
+
+`plgt build` automatically runs the UI build for any matrix that declares `components:` (see [`plgt ui`](/docs/cli/ui) for the underlying commands).
+
+## Architecture
+
+Matrix UIs are React Server Components bundled and deployed alongside your matrix spec. When Poliglot OS encounters a renderable entity (e.g., a task, a deal, an invoice), it looks up the component registered for that entity's type and renders it with props derived from the graph.
+
+The rendering pipeline:
+
+1. A `ui:Renderable` in your spec declares which class gets a component
+2. A `ui:propsQuery` (using `plgt:json`) extracts props from the entity's graph data
+3. The component receives those props and renders
+
+See the [UI Components guide](/docs/arch/ui-components) for how to declare renderables in your matrix spec.
+
+## Components
+
+The UIKit is built on [shadcn/ui](https://ui.shadcn.com/) and exports all standard components. These are the building blocks for matrix UIs.
+
+### Layout
+
+`Accordion`, `AspectRatio`, `Card`, `Carousel`, `Collapsible`, `Drawer`, `Resizable`, `ScrollArea`, `Separator`, `Sheet`, `Sidebar`, `Tabs`
+
+### Data Display
+
+`Avatar`, `Badge`, `Calendar`, `Chart`, `Empty`, `Mermaid`, `NetworkGraph`, `Progress`, `Skeleton`, `Table`
+
+### Input
+
+`Button`, `Checkbox`, `Form`, `Input`, `InputOTP`, `Label`, `RadioGroup`, `Select`, `Slider`, `Switch`, `Textarea`, `Toggle`, `ToggleGroup`
+
+### Navigation
+
+`Breadcrumb`, `Command`, `ContextMenu`, `DropdownMenu`, `HoverCard`, `Menubar`, `NavigationMenu`, `Pagination`, `Popover`
+
+### Feedback
+
+`Alert`, `AlertDialog`, `Dialog`, `Sonner`, `Spinner`, `Tooltip`
+
+For props and usage details, see the [shadcn/ui documentation](https://ui.shadcn.com/docs/components). The Poliglot UIKit components match the shadcn API.
+
+### Custom Components
+
+These components are specific to the Poliglot platform:
+
+**`Mermaid`**: renders Mermaid diagrams from a chart string. Used in documentation and matrix visualizations.
+
+```tsx
+import { Mermaid } from "@poliglot-io/uikit/components/mermaid";
+
+<Mermaid
+  chart={`graph TD
+  A[Start] --> B[End]
+`}
+/>;
+```
+
+**`NetworkGraph`**: interactive graph visualization powered by Cytoscape. Used for exploring entity relationships in the workspace.
+
+```tsx
+import { NetworkGraph } from "@poliglot-io/uikit/components/network-graph";
+
+<NetworkGraph
+  nodes={[{ id: "1", label: "Task" }]}
+  edges={[{ source: "1", target: "2" }]}
+  onSelectNode={node => console.log(node)}
+/>;
+```
+
+**`Empty`**: standardized empty state component.
+
+**`Spinner`**: loading indicator.
+
+## Building Components
+
+Use the CLI to build and preview your components:
+
+```bash
+# Start dev server for live preview
+plgt ui preview
+
+# Build component bundle for deployment
+plgt ui build
+```
+
+See the [`plgt ui` reference](/docs/cli/ui) for all options.
+
+## Theming
+
+Components use CSS variables for theming and support both light and dark modes automatically. The workspace provides the theme context. No additional configuration is needed for deployed matrix components.
+
+For local development, the `plgt ui preview` dev server provides the theme context.
+
+## Constraints
+
+Matrix components run as React Server Components in the Poliglot runtime. Some restrictions apply:
+
+- No client-side state (`useState`, `useEffect`, etc.)
+- No browser APIs (`window`, `document`, etc.)
+- No external network requests from the component
+- All data comes through the `plgt:json` props query defined in the matrix spec
+
+See the [UI Components guide](/docs/arch/ui-components) for the full constraint model.
