@@ -1,0 +1,1713 @@
+{
+  "schemaVersion": "1.0.0",
+  "package": "@poliglot-io/uikit",
+  "version": "0.1.0-beta.6",
+  "components": [
+    {
+      "file": "src/components/accordion.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Accordion",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AccordionContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AccordionItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AccordionTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/alert-dialog.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "AlertDialog",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDialogAction",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDialogCancel",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDialogContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDialogDescription",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDialogFooter",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDialogHeader",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDialogOverlay",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDialogPortal",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDialogTitle",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDialogTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/alert.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Alert",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertDescription",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AlertTitle",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": [
+        {
+          "name": "variant",
+          "options": [
+            "default",
+            "destructive",
+            "info",
+            "warning"
+          ],
+          "default": "default"
+        }
+      ]
+    },
+    {
+      "file": "src/components/aspect-ratio.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "AspectRatio",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/avatar.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Avatar",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AvatarFallback",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "AvatarImage",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/badge.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Badge",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "badgeVariants",
+          "kind": "const",
+          "jsdoc": null
+        }
+      ],
+      "variants": [
+        {
+          "name": "variant",
+          "options": [
+            "default",
+            "destructive",
+            "outline",
+            "secondary"
+          ],
+          "default": "default"
+        }
+      ]
+    },
+    {
+      "file": "src/components/breadcrumb.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Breadcrumb",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "BreadcrumbEllipsis",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "BreadcrumbItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "BreadcrumbLink",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "BreadcrumbList",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "BreadcrumbPage",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "BreadcrumbSeparator",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/button.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Button",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "buttonVariants",
+          "kind": "const",
+          "jsdoc": null
+        }
+      ],
+      "variants": [
+        {
+          "name": "size",
+          "options": [
+            "default",
+            "icon",
+            "lg",
+            "sm"
+          ],
+          "default": "default"
+        },
+        {
+          "name": "variant",
+          "options": [
+            "default",
+            "destructive",
+            "ghost",
+            "link",
+            "outline",
+            "secondary"
+          ],
+          "default": "default"
+        }
+      ]
+    },
+    {
+      "file": "src/components/calendar.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Calendar",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CalendarDayButton",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/card.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Card",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CardAction",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CardContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CardDescription",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CardFooter",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CardHeader",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CardTitle",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/carousel.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Carousel",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CarouselApi",
+          "kind": "type",
+          "jsdoc": null
+        },
+        {
+          "name": "CarouselContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CarouselItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CarouselNext",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CarouselPrevious",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/chart.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "ChartConfig",
+          "kind": "type",
+          "jsdoc": null
+        },
+        {
+          "name": "ChartContainer",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ChartLegend",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ChartLegendContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ChartStyle",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ChartTooltip",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ChartTooltipContent",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/checkbox.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Checkbox",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/collapsible.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Collapsible",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CollapsibleContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CollapsibleTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/command.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Command",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CommandDialog",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CommandEmpty",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CommandGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CommandInput",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CommandItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CommandList",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CommandSeparator",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "CommandShortcut",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/context-menu.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "ContextMenu",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuCheckboxItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuLabel",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuPortal",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuRadioGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuRadioItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuSeparator",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuShortcut",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuSub",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuSubContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuSubTrigger",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ContextMenuTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/dialog.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Dialog",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DialogClose",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DialogContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DialogDescription",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DialogFooter",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DialogHeader",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DialogOverlay",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DialogPortal",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DialogTitle",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DialogTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/drawer.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Drawer",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DrawerClose",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DrawerContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DrawerDescription",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DrawerFooter",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DrawerHeader",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DrawerOverlay",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DrawerPortal",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DrawerTitle",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DrawerTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/dropdown-menu.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "DropdownMenu",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuCheckboxItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuLabel",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuPortal",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuRadioGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuRadioItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuSeparator",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuShortcut",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuSub",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuSubContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuSubTrigger",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "DropdownMenuTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/empty.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Empty",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "EmptyProps",
+          "kind": "type",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/form.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Form",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "FormControl",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "FormDescription",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "FormField",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "FormItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "FormLabel",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "FormMessage",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "useFormField",
+          "kind": "const",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/hover-card.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "HoverCard",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "HoverCardContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "HoverCardTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/input-otp.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "InputOTP",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "InputOTPGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "InputOTPSeparator",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "InputOTPSlot",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/input.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Input",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/label.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Label",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/menubar.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Menubar",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarCheckboxItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarLabel",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarMenu",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarPortal",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarRadioGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarRadioItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarSeparator",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarShortcut",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarSub",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarSubContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarSubTrigger",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "MenubarTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/mermaid.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Mermaid",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/navigation-menu.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "NavigationMenu",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "NavigationMenuContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "NavigationMenuIndicator",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "NavigationMenuItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "NavigationMenuLink",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "NavigationMenuList",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "NavigationMenuTrigger",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "navigationMenuTriggerStyle",
+          "kind": "const",
+          "jsdoc": null
+        },
+        {
+          "name": "NavigationMenuViewport",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/network-graph.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "GraphEdge",
+          "kind": "type",
+          "jsdoc": null
+        },
+        {
+          "name": "GraphNode",
+          "kind": "type",
+          "jsdoc": null
+        },
+        {
+          "name": "NetworkGraph",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "NetworkGraphProps",
+          "kind": "type",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/pagination.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Pagination",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "PaginationContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "PaginationEllipsis",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "PaginationItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "PaginationLink",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "PaginationNext",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "PaginationPrevious",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/popover.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Popover",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "PopoverAnchor",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "PopoverContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "PopoverTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/progress.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Progress",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/radio-group.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "RadioGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "RadioGroupItem",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/resizable.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "ResizableHandle",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ResizablePanel",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ResizablePanelGroup",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/scroll-area.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "ScrollArea",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ScrollBar",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/select.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Select",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SelectContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SelectGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SelectItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SelectLabel",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SelectScrollDownButton",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SelectScrollUpButton",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SelectSeparator",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SelectTrigger",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SelectValue",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/separator.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Separator",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/sheet.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Sheet",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SheetClose",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SheetContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SheetDescription",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SheetFooter",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SheetHeader",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SheetTitle",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SheetTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/sidebar.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Sidebar",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarFooter",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarGroupAction",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarGroupContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarGroupLabel",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarHeader",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarInput",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarInset",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarMenu",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarMenuAction",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarMenuBadge",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarMenuButton",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarMenuItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarMenuSkeleton",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarMenuSub",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarMenuSubButton",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarMenuSubItem",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarProvider",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarRail",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarSeparator",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "SidebarTrigger",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "useSidebar",
+          "kind": "function",
+          "jsdoc": null
+        }
+      ],
+      "variants": [
+        {
+          "name": "size",
+          "options": [
+            "default",
+            "lg",
+            "sm"
+          ],
+          "default": "default"
+        },
+        {
+          "name": "variant",
+          "options": [
+            "default",
+            "outline"
+          ],
+          "default": "default"
+        }
+      ]
+    },
+    {
+      "file": "src/components/skeleton.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Skeleton",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/slider.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Slider",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/sonner.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Toaster",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/spinner.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Spinner",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/switch.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Switch",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/table.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Table",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TableBody",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TableCaption",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TableCell",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TableFooter",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TableHead",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TableHeader",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TableRow",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/tabs.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Tabs",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TabsContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TabsList",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TabsTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/textarea.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Textarea",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/toggle-group.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "ToggleGroup",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "ToggleGroupItem",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/toggle.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Toggle",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "toggleVariants",
+          "kind": "const",
+          "jsdoc": null
+        }
+      ],
+      "variants": [
+        {
+          "name": "size",
+          "options": [
+            "default",
+            "lg",
+            "sm"
+          ],
+          "default": "default"
+        },
+        {
+          "name": "variant",
+          "options": [
+            "default",
+            "outline"
+          ],
+          "default": "default"
+        }
+      ]
+    },
+    {
+      "file": "src/components/tooltip.tsx",
+      "jsdoc": null,
+      "exports": [
+        {
+          "name": "Tooltip",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TooltipContent",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TooltipProvider",
+          "kind": "component",
+          "jsdoc": null
+        },
+        {
+          "name": "TooltipTrigger",
+          "kind": "component",
+          "jsdoc": null
+        }
+      ],
+      "variants": []
+    }
+  ]
+}

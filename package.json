@@ -239,6 +239,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "surface:gen": "tsx scripts/gen-component-surface.ts",
+    "surface:check": "tsx scripts/gen-component-surface.ts --check",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -327,6 +329,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.3.0",
+    "tsx": "^4.0.0",
     "typescript-eslint": "^8.0.0",
     "vitest": "^3.0.0"
   },

@@ -34,6 +34,13 @@ jobs:
       - name: Test
         run: npm test
 
+      # Regenerate the component surface JSON and fail if the committed
+      # file is stale. kleo's docs site consumes surface/components.json
+      # at release tags; drift here would silently ship reference docs
+      # that don't match the kit's actual exports.
+      - name: Component surface drift check
+        run: npm run surface:check
+
       - name: Pack (validate publishable artifact)
         run: npm pack --dry-run
 
