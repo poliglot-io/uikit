@@ -1,7 +1,6 @@
 import * as esbuild from "esbuild";
 import { join } from "path";
 import { mkdirSync, existsSync } from "fs";
-import { loadConfig } from "./config.js";
 import { parseExports } from "./export-parser.js";
 import { generateAndWriteManifest } from "./manifest-generator.js";
 import { generateAndWriteStubs } from "./stub-generator.js";
@@ -16,39 +15,31 @@ export interface BuildResult {
 }
 
 export interface BuildOptions {
+  /** Absolute path to the entry file (e.g. /path/to/src/components/index.ts). */
+  entry: string;
+  /** Absolute path where the bundle should be written. */
+  outFile: string;
+  /** Suppress non-JSON stdout. */
   quiet?: boolean;
 }
 
-export async function build(
-  projectRoot: string,
-  options: BuildOptions = {}
-): Promise<BuildResult> {
-  const config = loadConfig(projectRoot);
-  const entryPoint = join(
-    projectRoot,
-    config.components.source,
-    config.components.entry
-  );
-  const distDir = join(projectRoot, config.output.directory, "dist");
-  const outFile = join(distDir, "components.js");
+export async function build(options: BuildOptions): Promise<BuildResult> {
+  const { entry, outFile, quiet } = options;
 
-  // Check if entry point exists
-  if (!existsSync(entryPoint)) {
+  if (!existsSync(entry)) {
     return {
       outFile,
       exports: [],
       success: false,
-      error: `Entry point not found: ${entryPoint}`,
+      error: `Entry point not found: ${entry}`,
     };
   }
 
-  // Ensure output directory exists
-  mkdirSync(distDir, { recursive: true });
+  mkdirSync(join(outFile, ".."), { recursive: true });
 
   try {
-    // Single bundle from index.ts
     await esbuild.build({
-      entryPoints: [entryPoint],
+      entryPoints: [entry],
       outfile: outFile,
       bundle: true,
       format: "cjs",
@@ -65,11 +56,10 @@ export async function build(
       logLevel: "silent",
     });
 
-    // Parse exports for RDF generation
-    const exports = await parseExports(entryPoint);
+    const exports = await parseExports(entry);
 
-    if (!options.quiet) {
-      console.log(`  ✓ ${config.components.entry} → components.js`);
+    if (!quiet) {
+      console.log(`  ✓ ${entry} → ${outFile}`);
       console.log(`    Exports: ${exports.join(", ")}`);
     }
 
@@ -105,7 +95,7 @@ export interface ClientArtifactsResult {
  */
 export async function buildClientArtifacts(
   uikitRoot: string,
-  options: BuildOptions = {}
+  options: { quiet?: boolean } = {}
 ): Promise<ClientArtifactsResult> {
   const componentsIndex = join(uikitRoot, "src/components/index.ts");
   const distDir = join(uikitRoot, "dist");

@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { loadConfig } from "./config.js";
+import { resolve } from "path";
 import { build } from "./compiler.js";
 import { init } from "./init.js";
 
@@ -13,22 +13,32 @@ program
 program
   .command("build")
   .description("Compile TSX components to a single JS bundle")
-  .option("-d, --dir <path>", "Project directory", process.cwd())
+  .requiredOption(
+    "-e, --entry <path>",
+    "Path to the components entry file (e.g. ./src/components/index.ts)"
+  )
+  .requiredOption(
+    "-o, --out <path>",
+    "Path to write the bundle to (e.g. ./.matrix/dist/components.js)"
+  )
+  .option(
+    "-d, --dir <path>",
+    "Project directory (entry / out are resolved against this)",
+    process.cwd()
+  )
   .option("--json", "Output result as JSON")
   .action(async options => {
     try {
-      const config = loadConfig(options.dir);
+      const projectDir = resolve(options.dir);
+      const entry = resolve(projectDir, options.entry);
+      const outFile = resolve(projectDir, options.out);
 
       if (!options.json) {
-        console.log(
-          `Building components from ${config.components.source}/${config.components.entry}`
-        );
-        console.log(
-          `Output to ${config.output.directory}/dist/components.js\n`
-        );
+        console.log(`Building ${entry}`);
+        console.log(`Output to ${outFile}\n`);
       }
 
-      const result = await build(options.dir, { quiet: options.json });
+      const result = await build({ entry, outFile, quiet: options.json });
 
       if (options.json) {
         console.log(JSON.stringify(result, null, 2));
@@ -68,20 +78,6 @@ program
       });
     } catch (err) {
       console.error("Init failed:", err instanceof Error ? err.message : err);
-      process.exit(1);
-    }
-  });
-
-program
-  .command("config")
-  .description("Show current configuration")
-  .option("-d, --dir <path>", "Project directory", process.cwd())
-  .action(options => {
-    try {
-      const config = loadConfig(options.dir);
-      console.log(JSON.stringify(config, null, 2));
-    } catch (err) {
-      console.error("Error:", err instanceof Error ? err.message : err);
       process.exit(1);
     }
   });
