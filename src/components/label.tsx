@@ -1,3 +1,10 @@
+/**
+ * Form field label.
+ *
+ * Accessible by default — pair with `htmlFor` matching the
+ * input's `id`, or render inside a `FormItem` to wire
+ * automatically.
+ */
 "use client";
 
 import * as React from "react";

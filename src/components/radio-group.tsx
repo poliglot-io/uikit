@@ -1,3 +1,9 @@
+/**
+ * Group of mutually-exclusive radio buttons.
+ *
+ * Compose with `RadioGroupItem`. The group binds the selected
+ * value across its items.
+ */
 "use client";
 
 import * as React from "react";

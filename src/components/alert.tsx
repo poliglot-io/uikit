@@ -1,3 +1,9 @@
+/**
+ * Inline callout displaying an important message.
+ *
+ * Variants: `default` for neutral info, `destructive` for errors
+ * and warnings. Compose with `AlertTitle` and `AlertDescription`.
+ */
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 

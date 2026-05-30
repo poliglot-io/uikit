@@ -1,3 +1,10 @@
+/**
+ * Container for grouped, self-contained content.
+ *
+ * Compose with `CardHeader`, `CardTitle`, `CardDescription`,
+ * `CardContent`, and `CardFooter`. Use for dashboard tiles,
+ * list items with rich content, and similar surfaces.
+ */
 import * as React from "react";
 
 import { cn } from "../lib/utils";

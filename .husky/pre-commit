@@ -1,1 +1,11 @@
 npx lint-staged
+
+# Regenerate the component surface JSON. The script writes only when the
+# output differs, so already-up-to-date checkouts are a no-op. When it
+# does write, husky picks it up via the post-write file change and the
+# contributor re-stages — same cycle as eslint --fix in lint-staged.
+npx tsx scripts/gen-component-surface.ts
+git diff --quiet -- surface/components.json || {
+  echo "surface/components.json regenerated. Stage the change and recommit." >&2
+  exit 1
+}

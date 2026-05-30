@@ -1,3 +1,9 @@
+/**
+ * Range input with one or two thumbs.
+ *
+ * Pass a single number for a single-value slider, or an array
+ * of two for a range. Supports min / max / step.
+ */
 "use client";
 
 import * as React from "react";

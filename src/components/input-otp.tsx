@@ -1,3 +1,10 @@
+/**
+ * One-time-password / multi-character verification code input.
+ *
+ * Compose with `InputOTPGroup` and `InputOTPSlot`. Supports any
+ * number of slots; `InputOTPSeparator` adds a visual divider
+ * between groups (e.g. `123 456`).
+ */
 "use client";
 
 import * as React from "react";

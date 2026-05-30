@@ -1,3 +1,11 @@
+/**
+ * react-hook-form integration with the kit's input primitives.
+ *
+ * Compose with `Form` (wraps `FormProvider`), `FormField` (binds
+ * to a field), `FormItem`, `FormLabel`, `FormControl`,
+ * `FormDescription`, and `FormMessage`. Automatically wires
+ * ids, error states, and aria attributes.
+ */
 "use client";
 
 import * as React from "react";

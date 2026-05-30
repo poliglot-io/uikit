@@ -1,3 +1,10 @@
+/**
+ * Page navigation control.
+ *
+ * Compose with `PaginationContent`, `PaginationItem`,
+ * `PaginationPrevious`, `PaginationNext`, `PaginationLink`,
+ * and `PaginationEllipsis` for skipped ranges.
+ */
 import * as React from "react";
 import {
   ChevronLeftIcon,

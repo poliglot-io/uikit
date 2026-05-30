@@ -1,3 +1,10 @@
+/**
+ * Toast notifications, themed for the kit.
+ *
+ * Re-exports sonner's `Toaster` (mount once near the app root)
+ * and `toast()` (call from anywhere to show a notification).
+ * Theme-aware via `next-themes`.
+ */
 "use client";
 
 import { useTheme } from "next-themes";

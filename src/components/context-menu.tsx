@@ -1,3 +1,10 @@
+/**
+ * Right-click contextual menu surface.
+ *
+ * Compose with `ContextMenuTrigger` (the right-clickable area)
+ * and `ContextMenuContent`, plus `ContextMenuItem` /
+ * `ContextMenuSeparator` / `ContextMenuSub` for the menu body.
+ */
 "use client";
 
 import * as React from "react";

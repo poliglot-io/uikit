@@ -1,3 +1,8 @@
+/**
+ * Single toggle button (pressed / not pressed).
+ *
+ * For a group of related toggles prefer `ToggleGroup`.
+ */
 "use client";
 
 import * as React from "react";

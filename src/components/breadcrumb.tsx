@@ -1,3 +1,11 @@
+/**
+ * Hierarchical breadcrumb navigation.
+ *
+ * Shows the user's location inside a multi-level structure.
+ * Compose with `BreadcrumbList`, `BreadcrumbItem`,
+ * `BreadcrumbLink`, `BreadcrumbSeparator`, and
+ * `BreadcrumbPage` for the final crumb.
+ */
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { ChevronRight, MoreHorizontal } from "lucide-react";

@@ -1,3 +1,11 @@
+/**
+ * Searchable command palette / typeahead menu.
+ *
+ * Wraps cmdk. Compose with `CommandInput` (search box),
+ * `CommandList`, `CommandGroup`, `CommandItem`, and
+ * `CommandEmpty` (shown when no items match). Use inside a
+ * `Dialog` for the spotlight-style ⌘K palette pattern.
+ */
 "use client";
 
 import * as React from "react";

@@ -1,3 +1,10 @@
+/**
+ * Expand/collapse for a single piece of content.
+ *
+ * Simpler than `Accordion` — one trigger, one panel, no
+ * single-vs-multiple semantics. Compose with `CollapsibleTrigger`
+ * and `CollapsibleContent`.
+ */
 "use client";
 
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";

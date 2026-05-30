@@ -1,3 +1,10 @@
+/**
+ * Application-style menu bar with nested menus.
+ *
+ * The File / Edit / View / … pattern of desktop apps. Compose
+ * with `MenubarMenu`, `MenubarTrigger`, `MenubarContent`,
+ * `MenubarItem`, `MenubarSub`, `MenubarRadioGroup`, etc.
+ */
 "use client";
 
 import * as React from "react";
