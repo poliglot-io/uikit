@@ -1,7 +1,7 @@
-export { loadConfig, type PoliglotConfig } from "./config.js";
 export {
   build,
   buildClientArtifacts,
+  type BuildOptions,
   type BuildResult,
   type ClientArtifactsResult,
 } from "./compiler.js";

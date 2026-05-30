@@ -16,31 +16,23 @@ describe("compiler", () => {
 
   describe("build", () => {
     function setupProject(components: Record<string, string>) {
-      // Create config
-      writeFileSync(
-        join(testDir, "poliglot.yml"),
-        `version: "1"
-components:
-  source: ./src/components
-  entry: index.ts
-output:
-  directory: ./.matrix
-`
-      );
-
-      // Create component files
       const srcDir = join(testDir, "src", "components");
       mkdirSync(srcDir, { recursive: true });
-
       for (const [name, content] of Object.entries(components)) {
         writeFileSync(join(srcDir, name), content);
       }
     }
 
-    it("returns error when entry point not found", async () => {
-      writeFileSync(join(testDir, "poliglot.yml"), 'version: "1"');
+    function buildOptions() {
+      return {
+        entry: join(testDir, "src/components/index.ts"),
+        outFile: join(testDir, ".matrix/dist/components.js"),
+        quiet: true,
+      };
+    }
 
-      const result = await build(testDir, { quiet: true });
+    it("returns error when entry point not found", async () => {
+      const result = await build(buildOptions());
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Entry point not found");
@@ -59,7 +51,7 @@ export function Button({ children }: { children: React.ReactNode }) {
 `,
       });
 
-      const result = await build(testDir, { quiet: true });
+      const result = await build(buildOptions());
 
       expect(result.success).toBe(true);
       expect(result.exports).toContain("Button");
@@ -71,11 +63,10 @@ export function Button({ children }: { children: React.ReactNode }) {
         "index.ts": 'export const VERSION = "1.0.0";',
       });
 
-      const result = await build(testDir, { quiet: true });
+      const result = await build(buildOptions());
 
       expect(result.success).toBe(true);
-      const distDir = join(testDir, ".matrix", "dist");
-      expect(existsSync(distDir)).toBe(true);
+      expect(existsSync(join(testDir, ".matrix", "dist"))).toBe(true);
     });
 
     it("extracts multiple exports", async () => {
@@ -94,7 +85,7 @@ export const CardHeader = () => null;
 `,
       });
 
-      const result = await build(testDir, { quiet: true });
+      const result = await build(buildOptions());
 
       expect(result.success).toBe(true);
       expect(result.exports).toContain("Button");
@@ -111,7 +102,7 @@ export { NonExistent };
 `,
       });
 
-      const result = await build(testDir, { quiet: true });
+      const result = await build(buildOptions());
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
