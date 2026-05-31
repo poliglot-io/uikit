@@ -29,30 +29,17 @@ import { Card } from "@poliglot-io/uikit/components/card";
 import "@poliglot-io/uikit/styles.min.css";
 ```
 
-## Components
-
-Accordion, Alert, Alert Dialog, Aspect Ratio, Avatar, Badge, Breadcrumb, Button, Calendar, Card, Carousel, Chart, Checkbox, Collapsible, Command, Context Menu, Dialog, Drawer, Dropdown Menu, Empty, Form, Hover Card, Input, Input OTP, Label, Menubar, Mermaid, Navigation Menu, Network Graph, Pagination, Popover, Progress, Radio Group, Resizable, Scroll Area, Select, Separator, Sheet, Sidebar, Skeleton, Slider, Spinner, Sonner, Switch, Table, Tabs, Textarea, Toggle, Toggle Group, Tooltip.
-
-## Development
-
-```bash
-npm install
-npm run build      # tsc + bundled CSS
-npm run dev        # tsc --watch
-npm test           # vitest
-npm run lint
-```
-
 ## Documentation
 
-- Conceptual overview: <https://poliglot.io/docs/arch/ui-components>
-- Full docs: <https://poliglot.io/docs>
+- [Component reference](https://poliglot.io/docs/uikit) — every component's props, types, defaults, and CVA variants, auto-generated from this repo on every release.
+- [Conceptual overview](https://poliglot.io/docs/arch/ui-components) — how uikit fits into a Poliglot matrix.
+- [Full Poliglot docs](https://poliglot.io/docs)
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). All contributors must sign the [Poliglot Contributor License Agreement](https://poliglot.io/cla) before their first PR is merged.
+Local setup, test commands, and the PR workflow live in [CONTRIBUTING.md](CONTRIBUTING.md). All contributors must sign the [Poliglot Contributor License Agreement](https://poliglot.io/cla) before their first PR is merged.
 
-Bugs and feature requests go through GitHub Issues; security issues use [private security advisories](https://github.com/poliglot-io/uikit/security/advisories/new) — see [SECURITY.md](SECURITY.md).
+Bugs and feature requests: GitHub Issues. Security issues: [private security advisories](https://github.com/poliglot-io/uikit/security/advisories/new) (see [SECURITY.md](SECURITY.md)).
 
 ## License
 
