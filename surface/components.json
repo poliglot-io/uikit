@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "package": "@poliglot-io/uikit",
-  "version": "0.1.0-beta.6",
+  "version": "0.1.0-beta.7",
   "components": [
     {
       "file": "src/components/accordion.tsx",
@@ -11173,7 +11173,7 @@
     },
     {
       "file": "src/components/network-graph.tsx",
-      "jsdoc": "Force-directed graph visualization based on cytoscape.\n\nUses the fcose layout for clear node placement. Pass nodes\nand edges as data; interaction handlers cover selection,\nhover, and click. Used in matrix-author for dependency and\nrelationship views.",
+      "jsdoc": "Network graph visualization with 2D and 3D rendering.\n\nPass nodes and edges as data; interaction handlers cover\nselection, hover, and expand. The graph can be explored in a\n2D force-directed layout (cytoscape, fcose) or navigated in a\n3D force-directed scene (react-force-graph-3d / three). Users\ntoggle between the two with the control in the top-right; the\ndefault mode is configurable. Used in matrix-author for\ndependency and relationship views.",
       "components": [
         {
           "name": "NetworkGraph",
@@ -11186,6 +11186,22 @@
               "required": false,
               "default": null,
               "description": null,
+              "origin": "NetworkGraphProps"
+            },
+            {
+              "name": "defaultDimensions",
+              "type": "enum",
+              "required": false,
+              "default": "2d",
+              "description": "Initial render mode when uncontrolled. Default \"2d\".",
+              "origin": "NetworkGraphProps"
+            },
+            {
+              "name": "dimensions",
+              "type": "enum",
+              "required": false,
+              "default": null,
+              "description": "Controlled render mode. When set, the toggle reflects this value.",
               "origin": "NetworkGraphProps"
             },
             {
@@ -11221,6 +11237,14 @@
               "origin": "NetworkGraphProps"
             },
             {
+              "name": "onDimensionsChange",
+              "type": "((dimensions: GraphDimensions) => void)",
+              "required": false,
+              "default": null,
+              "description": "Called when the user switches between 2D and 3D.",
+              "origin": "NetworkGraphProps"
+            },
+            {
               "name": "onExpandNode",
               "type": "((nodeId: string) => void)",
               "required": false,
@@ -11250,6 +11274,14 @@
               "required": false,
               "default": null,
               "description": null,
+              "origin": "NetworkGraphProps"
+            },
+            {
+              "name": "showDimensionToggle",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Show the 2D/3D toggle control. Default true.",
               "origin": "NetworkGraphProps"
             }
           ]

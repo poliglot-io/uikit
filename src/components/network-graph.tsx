@@ -1,10 +1,13 @@
 /**
- * Force-directed graph visualization based on cytoscape.
+ * Network graph visualization with 2D and 3D rendering.
  *
- * Uses the fcose layout for clear node placement. Pass nodes
- * and edges as data; interaction handlers cover selection,
- * hover, and click. Used in matrix-author for dependency and
- * relationship views.
+ * Pass nodes and edges as data; interaction handlers cover
+ * selection, hover, and expand. The graph can be explored in a
+ * 2D force-directed layout (cytoscape, fcose) or navigated in a
+ * 3D force-directed scene (react-force-graph-3d / three). Users
+ * toggle between the two with the control in the top-right; the
+ * default mode is configurable. Used in matrix-author for
+ * dependency and relationship views.
  */
 "use client";
 
@@ -12,6 +15,13 @@ import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import cytoscape from "cytoscape";
 import fcose from "cytoscape-fcose";
 import type { Core, NodeSingular, LayoutOptions } from "cytoscape";
+import type {
+  ForceGraphMethods,
+  ForceGraphProps,
+  NodeObject,
+  LinkObject,
+} from "react-force-graph-3d";
+import type { Side } from "three";
 import { cn } from "../lib/utils";
 
 // Register fcose layout once
@@ -39,6 +49,9 @@ export interface GraphEdge {
   label?: string;
 }
 
+/** Rendering mode for the graph. */
+export type GraphDimensions = "2d" | "3d";
+
 export interface NetworkGraphProps {
   nodes: GraphNode[];
   edges: GraphEdge[];
@@ -51,6 +64,14 @@ export interface NetworkGraphProps {
   emptyMessage?: string;
   /** Hide tooltips on hover. Default true. */
   hideTooltips?: boolean;
+  /** Initial render mode when uncontrolled. Default "2d". */
+  defaultDimensions?: GraphDimensions;
+  /** Controlled render mode. When set, the toggle reflects this value. */
+  dimensions?: GraphDimensions;
+  /** Called when the user switches between 2D and 3D. */
+  onDimensionsChange?: (dimensions: GraphDimensions) => void;
+  /** Show the 2D/3D toggle control. Default true. */
+  showDimensionToggle?: boolean;
 }
 
 // --- Type color palette ---
@@ -149,6 +170,32 @@ function hashString(s: string): number {
   return hash;
 }
 
+/** Escape a string for safe interpolation into tooltip HTML. */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Tracks whether the document is in dark mode via the `dark` class. */
+function useIsDark(): boolean {
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const check = () =>
+      setIsDark(document.documentElement.classList.contains("dark"));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
+  return isDark;
+}
+
 // --- Internal types ---
 
 type FcoseLayoutOptions = LayoutOptions & {
@@ -173,9 +220,107 @@ interface TooltipState {
   y: number;
 }
 
-// --- Utilities ---
+interface GraphViewProps {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  isDark: boolean;
+  selectedId?: string | null;
+  searchQuery?: string;
+  onSelectNode?: (node: GraphNode | null) => void;
+  onExpandNode?: (nodeId: string) => void;
+  hideTooltips: boolean;
+}
 
-// --- Stylesheet ---
+// --- Component (mode wrapper) ---
+
+export function NetworkGraph({
+  nodes,
+  edges,
+  selectedId,
+  searchQuery,
+  onSelectNode,
+  onExpandNode,
+  className,
+  emptyMessage = "No data to display",
+  hideTooltips = true,
+  defaultDimensions = "2d",
+  dimensions,
+  onDimensionsChange,
+  showDimensionToggle = true,
+}: NetworkGraphProps) {
+  const isDark = useIsDark();
+  const [internalDimensions, setInternalDimensions] =
+    useState<GraphDimensions>(defaultDimensions);
+
+  // Controlled when `dimensions` is provided, otherwise internal state.
+  const activeDimensions = dimensions ?? internalDimensions;
+
+  const setDimensions = useCallback(
+    (next: GraphDimensions) => {
+      if (dimensions === undefined) setInternalDimensions(next);
+      onDimensionsChange?.(next);
+    },
+    [dimensions, onDimensionsChange]
+  );
+
+  const hasNodes = nodes.length > 0;
+
+  // Compute unique types for legend
+  const uniqueTypes = useMemo(() => {
+    const types = new Set<string>();
+    nodes.forEach(n => {
+      if (n.type) types.add(n.type);
+    });
+    return Array.from(types);
+  }, [nodes]);
+
+  const viewProps: GraphViewProps = {
+    nodes,
+    edges,
+    isDark,
+    selectedId,
+    searchQuery,
+    onSelectNode,
+    onExpandNode,
+    hideTooltips,
+  };
+
+  return (
+    <div className={cn("relative h-full w-full", className)}>
+      {/* Mode toggle */}
+      {showDimensionToggle && (
+        <DimensionToggle
+          value={activeDimensions}
+          onChange={setDimensions}
+          disabled={!hasNodes}
+        />
+      )}
+
+      {/* Active view */}
+      {activeDimensions === "3d" ? (
+        <NetworkGraph3D {...viewProps} />
+      ) : (
+        <NetworkGraph2D {...viewProps} />
+      )}
+
+      {/* Type legend (shared across modes) */}
+      {uniqueTypes.length > 0 && (
+        <TypeLegend types={uniqueTypes} isDark={isDark} />
+      )}
+
+      {/* Empty state */}
+      {!hasNodes && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <p className="text-sm text-[var(--muted-foreground,#737373)]">
+            {emptyMessage}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// --- 2D view (cytoscape) ---
 
 function createStylesheet(isDark: boolean) {
   const fg = isDark ? "#e5e5e5" : "#1a1a1a";
@@ -232,8 +377,6 @@ function createStylesheet(isDark: boolean) {
   ];
 }
 
-// --- Layout constants ---
-
 const LAYOUT_BASE: Omit<FcoseLayoutOptions, "name"> = {
   nodeDimensionsIncludeLabels: true,
   idealEdgeLength: 160,
@@ -241,22 +384,18 @@ const LAYOUT_BASE: Omit<FcoseLayoutOptions, "name"> = {
   gravity: 0.25,
 };
 
-// --- Component ---
-
-export function NetworkGraph({
+function NetworkGraph2D({
   nodes,
   edges,
+  isDark,
   selectedId,
   searchQuery,
   onSelectNode,
   onExpandNode,
-  className,
-  emptyMessage = "No data to display",
-  hideTooltips = true,
-}: NetworkGraphProps) {
+  hideTooltips,
+}: GraphViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<Core | null>(null);
-  const [isDark, setIsDark] = useState(false);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   // Stable ref for hideTooltips (captured in init effect)
@@ -279,19 +418,6 @@ export function NetworkGraph({
   onSelectNodeRef.current = onSelectNode;
   const onExpandNodeRef = useRef(onExpandNode);
   onExpandNodeRef.current = onExpandNode;
-
-  // Track dark mode
-  useEffect(() => {
-    const check = () =>
-      setIsDark(document.documentElement.classList.contains("dark"));
-    check();
-    const observer = new MutationObserver(check);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
 
   // Initialize cytoscape
   useEffect(() => {
@@ -563,85 +689,18 @@ export function NetworkGraph({
       .run();
   }, []);
 
-  const hasNodes = nodes.length > 0;
-
-  // Compute unique types for legend
-  const uniqueTypes = useMemo(() => {
-    const types = new Set<string>();
-    nodes.forEach(n => {
-      if (n.type) types.add(n.type);
-    });
-    return Array.from(types);
-  }, [nodes]);
-
   return (
-    <div className={cn("relative h-full w-full", className)}>
+    <>
       {/* Toolbar */}
-      <div className="absolute left-3 top-3 z-10 flex items-center gap-1 rounded-md border bg-[var(--card,#fff)]/95 p-1 backdrop-blur-sm">
-        <ToolbarButton
-          onClick={handleZoomIn}
-          title="Zoom in"
-          disabled={!hasNodes}
-        >
-          <ZoomInIcon />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={handleZoomOut}
-          title="Zoom out"
-          disabled={!hasNodes}
-        >
-          <ZoomOutIcon />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={handleFit}
-          title="Fit to view"
-          disabled={!hasNodes}
-        >
-          <FitIcon />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={handleResetLayout}
-          title="Reset layout"
-          disabled={!hasNodes}
-        >
-          <ResetIcon />
-        </ToolbarButton>
-      </div>
-
-      {/* Type legend */}
-      {uniqueTypes.length > 0 && (
-        <div className="absolute left-3 bottom-3 z-10 flex flex-col gap-1 rounded-md border bg-[var(--card,#fff)]/95 px-2.5 py-2 backdrop-blur-sm">
-          {uniqueTypes.map(type => {
-            const color = typeColor(type, isDark);
-            return (
-              <div key={type} className="flex items-center gap-2">
-                <div
-                  className="size-3 rounded-full shrink-0"
-                  style={{
-                    backgroundColor: color.bg,
-                    border: `1.5px solid ${color.border}`,
-                  }}
-                />
-                <span className="text-[11px] text-[var(--muted-foreground,#737373)]">
-                  {type}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <GraphToolbar
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onFit={handleFit}
+        onReset={handleResetLayout}
+      />
 
       {/* Cytoscape container */}
       <div ref={containerRef} className="h-full w-full" />
-
-      {/* Empty state */}
-      {!hasNodes && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <p className="text-sm text-[var(--muted-foreground,#737373)]">
-            {emptyMessage}
-          </p>
-        </div>
-      )}
 
       {/* Hover tooltip — interactive (pointer-events-auto so user can hover over it) */}
       {tooltip && (
@@ -658,11 +717,511 @@ export function NetworkGraph({
           }}
         />
       )}
+    </>
+  );
+}
+
+// --- 3D view (react-force-graph-3d / three) ---
+
+type Graph3DComponent = (typeof import("react-force-graph-3d"))["default"];
+type ThreeModule = typeof import("three");
+
+interface HighlightInfo {
+  keep: Set<string>;
+}
+
+// The 3D engine renders tooltips through the `float-tooltip` library, which
+// wraps the label HTML in a `.float-tooltip-kap` element with its own
+// background, padding, and border. Strip that chrome so our themed card —
+// matching the 2D tooltip — is the only thing the user sees.
+const TOOLTIP_STYLE_ID = "poliglot-network-graph-3d-tooltip";
+const TOOLTIP_STYLE = `.float-tooltip-kap{background:transparent!important;border:0!important;padding:0!important;border-radius:0!important;box-shadow:none!important;font:inherit!important;color:inherit!important;}`;
+
+function useNeutralizeTooltipChrome() {
+  useEffect(() => {
+    if (document.getElementById(TOOLTIP_STYLE_ID)) return;
+    const style = document.createElement("style");
+    style.id = TOOLTIP_STYLE_ID;
+    style.textContent = TOOLTIP_STYLE;
+    document.head.appendChild(style);
+  }, []);
+}
+
+function NetworkGraph3D({
+  nodes,
+  edges,
+  isDark,
+  selectedId,
+  searchQuery,
+  onSelectNode,
+  onExpandNode,
+  hideTooltips,
+}: GraphViewProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const fgRef = useRef<ForceGraphMethods | undefined>(undefined);
+
+  useNeutralizeTooltipChrome();
+
+  // three / react-force-graph-3d are heavy and touch `window`, so load them
+  // on the client only. `three` is already pulled in by the graph library,
+  // so this second import resolves the same module without a double load.
+  // Until loaded, render an empty container.
+  const [api, setApi] = useState<{
+    Graph: Graph3DComponent;
+    three: ThreeModule;
+  } | null>(null);
+  useEffect(() => {
+    let active = true;
+    Promise.all([import("react-force-graph-3d"), import("three")]).then(
+      ([graphMod, three]) => {
+        if (active) setApi({ Graph: graphMod.default, three });
+      }
+    );
+    return () => {
+      active = false;
+    };
+  }, []);
+  const Graph = api?.Graph ?? null;
+
+  // Track container size — ForceGraph3D needs explicit width/height.
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () =>
+      setSize({ width: el.clientWidth, height: el.clientHeight });
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Stable callback refs
+  const onSelectNodeRef = useRef(onSelectNode);
+  onSelectNodeRef.current = onSelectNode;
+  const onExpandNodeRef = useRef(onExpandNode);
+  onExpandNodeRef.current = onExpandNode;
+  const hideTooltipsRef = useRef(hideTooltips);
+  hideTooltipsRef.current = hideTooltips;
+
+  // Reuse node objects across renders so force-graph keeps their simulated
+  // positions instead of relaying out the whole scene on every data change.
+  const nodeObjsRef = useRef<Map<string, NodeObject>>(new Map());
+  const graphData = useMemo(() => {
+    const map = nodeObjsRef.current;
+    const nextIds = new Set(nodes.map(n => n.id));
+    for (const id of Array.from(map.keys())) {
+      if (!nextIds.has(id)) map.delete(id);
+    }
+    const fgNodes: NodeObject[] = nodes.map(n => {
+      // Carry the same fill + border colors the 2D nodes and legend swatches
+      // use, so the custom node object can render an identical "pale fill,
+      // colored ring" look.
+      const c = typeColor(n.type, isDark);
+      const label = n.label || n.id;
+      const existing = map.get(n.id);
+      if (existing) {
+        existing.node = n;
+        existing.fill = c.bg;
+        existing.border = c.border;
+        existing.label = label;
+        return existing;
+      }
+      const obj: NodeObject = {
+        id: n.id,
+        label,
+        fill: c.bg,
+        border: c.border,
+        node: n,
+      };
+      map.set(n.id, obj);
+      return obj;
+    });
+    const fgLinks: LinkObject[] = edges.map(e => ({
+      source: e.source,
+      target: e.target,
+      label: e.label ?? "",
+    }));
+    return { nodes: fgNodes, links: fgLinks };
+  }, [nodes, edges, isDark]);
+
+  // Which ids stay highlighted (selection neighborhood or search match).
+  // null means "no dimming".
+  const highlight: HighlightInfo | null = useMemo(() => {
+    if (selectedId) {
+      const keep = new Set<string>([selectedId]);
+      for (const e of edges) {
+        if (e.source === selectedId) keep.add(e.target);
+        if (e.target === selectedId) keep.add(e.source);
+      }
+      return { keep };
+    }
+    const query = searchQuery?.trim().toLowerCase();
+    if (query) {
+      const keep = new Set<string>();
+      for (const n of nodes) {
+        if ((n.label || "").toLowerCase().includes(query)) keep.add(n.id);
+      }
+      return { keep };
+    }
+    return null;
+  }, [selectedId, searchQuery, nodes, edges]);
+
+  // Render nodes with unlit (MeshBasic) materials so they show the EXACT
+  // palette hex — three.js lighting would otherwise shade the pale fills into
+  // muddy greys. A small back-side outline sphere reproduces the 2D node's
+  // colored ring around a soft fill. Geometry + materials are cached/shared.
+  const dimFill = isDark ? "#3a3a3a" : "#d4d4d4";
+  const dimBorder = isDark ? "#525252" : "#a3a3a3";
+  const innerGeomRef = useRef<InstanceType<ThreeModule["SphereGeometry"]> | null>(
+    null
+  );
+  const outerGeomRef = useRef<InstanceType<ThreeModule["SphereGeometry"]> | null>(
+    null
+  );
+  const matCacheRef = useRef<
+    Map<string, InstanceType<ThreeModule["MeshBasicMaterial"]>>
+  >(new Map());
+  const labelMatCacheRef = useRef<
+    Map<string, InstanceType<ThreeModule["SpriteMaterial"]>>
+  >(new Map());
+
+  const nodeThreeObject = useCallback(
+    (node: NodeObject) => {
+      // Only rendered while `api` is loaded (the Graph itself gates on it).
+      const three = api!.three;
+      if (!innerGeomRef.current)
+        innerGeomRef.current = new three.SphereGeometry(4.5, 16, 16);
+      if (!outerGeomRef.current)
+        outerGeomRef.current = new three.SphereGeometry(5.6, 16, 16);
+
+      const dimmed = !!highlight && !highlight.keep.has(String(node.id));
+      const fill = dimmed ? dimFill : (node.fill as string);
+      const border = dimmed ? dimBorder : (node.border as string);
+      const opacity = dimmed ? 0.35 : 1;
+
+      const material = (color: string, side: Side) => {
+        const key = `${color}|${opacity}|${side}`;
+        let mat = matCacheRef.current.get(key);
+        if (!mat) {
+          mat = new three.MeshBasicMaterial({
+            color,
+            side,
+            transparent: opacity < 1,
+            opacity,
+          });
+          matCacheRef.current.set(key, mat);
+        }
+        return mat;
+      };
+
+      const group = new three.Group();
+      // Outline: a larger sphere rendered back-side-only sits behind the fill.
+      group.add(new three.Mesh(outerGeomRef.current, material(border, three.BackSide)));
+      group.add(new three.Mesh(innerGeomRef.current, material(fill, three.FrontSide)));
+
+      // Always-on text label below the node, mirroring the 2D layout.
+      const text = String(node.label ?? "");
+      if (text) {
+        const labelColor = dimmed
+          ? isDark
+            ? "#737373"
+            : "#a3a3a3"
+          : isDark
+            ? "#e5e5e5"
+            : "#1a1a1a";
+        group.add(
+          buildLabelSprite(
+            three,
+            text,
+            labelColor,
+            opacity,
+            labelMatCacheRef.current
+          )
+        );
+      }
+      return group;
+    },
+    [api, highlight, isDark, dimFill, dimBorder]
+  );
+
+  const linkColor = useCallback(
+    (link: LinkObject) => {
+      const muted = isDark ? "rgba(160,160,160,0.4)" : "rgba(115,115,115,0.45)";
+      if (highlight) {
+        const s = endpointId(link.source);
+        const t = endpointId(link.target);
+        if (!highlight.keep.has(s) || !highlight.keep.has(t)) {
+          return isDark ? "rgba(80,80,80,0.12)" : "rgba(200,200,200,0.18)";
+        }
+      }
+      return muted;
+    },
+    [highlight, isDark]
+  );
+
+  const nodeLabel = useCallback((node: NodeObject) => {
+    if (hideTooltipsRef.current) return "";
+    const graphNode = node.node as GraphNode | undefined;
+    if (!graphNode) return "";
+    return renderTooltipHtml(graphNode);
+  }, []);
+
+  // Distinguish a single click (select + focus) from a double click (expand).
+  const lastClickRef = useRef<{ id: string; time: number }>({
+    id: "",
+    time: 0,
+  });
+
+  const handleNodeClick = useCallback((node: NodeObject) => {
+    const id = String(node.id);
+    const graphNode = (node.node as GraphNode | undefined) ?? null;
+
+    // Ease the camera toward the clicked node along the current view axis.
+    const fg = fgRef.current;
+    if (
+      fg &&
+      typeof node.x === "number" &&
+      typeof node.y === "number" &&
+      typeof node.z === "number"
+    ) {
+      const distance = 120;
+      const radius = Math.hypot(node.x, node.y, node.z) || 1;
+      const ratio = 1 + distance / radius;
+      fg.cameraPosition(
+        { x: node.x * ratio, y: node.y * ratio, z: node.z * ratio },
+        { x: node.x, y: node.y, z: node.z },
+        700
+      );
+    }
+
+    const now = Date.now();
+    const last = lastClickRef.current;
+    if (last.id === id && now - last.time < 300) {
+      lastClickRef.current = { id: "", time: 0 };
+      onExpandNodeRef.current?.(id);
+    } else {
+      lastClickRef.current = { id, time: now };
+      onSelectNodeRef.current?.(graphNode);
+    }
+  }, []);
+
+  const handleBackgroundClick = useCallback(() => {
+    onSelectNodeRef.current?.(null);
+  }, []);
+
+  // Fit the scene into view once the layout first settles. Reset the latch
+  // when the graph transitions in and out of the empty state.
+  const didFitRef = useRef(false);
+  const isEmpty = nodes.length === 0;
+  useEffect(() => {
+    didFitRef.current = false;
+  }, [isEmpty]);
+  const handleEngineStop = useCallback(() => {
+    if (!didFitRef.current && fgRef.current && nodes.length > 0) {
+      fgRef.current.zoomToFit(400, 60);
+      didFitRef.current = true;
+    }
+  }, [nodes.length]);
+
+  // Toolbar handlers
+  const dolly = useCallback((factor: number) => {
+    const fg = fgRef.current;
+    if (!fg) return;
+    // Scale the camera's distance to the origin to zoom in/out.
+    const pos = fg.camera().position;
+    fg.cameraPosition(
+      { x: pos.x * factor, y: pos.y * factor, z: pos.z * factor },
+      undefined,
+      200
+    );
+  }, []);
+
+  const handleZoomIn = useCallback(() => dolly(0.8), [dolly]);
+  const handleZoomOut = useCallback(() => dolly(1.25), [dolly]);
+  const handleFit = useCallback(() => {
+    fgRef.current?.zoomToFit(400, 60);
+  }, []);
+  const handleReset = useCallback(() => {
+    fgRef.current?.d3ReheatSimulation();
+    fgRef.current?.zoomToFit(600, 60);
+  }, []);
+
+  const fgProps: ForceGraphProps = {
+    graphData,
+    width: size.width || undefined,
+    height: size.height || undefined,
+    // Transparent so the graph sits on the page background, matching the 2D
+    // (cytoscape) canvas rather than painting its own backdrop.
+    backgroundColor: "rgba(0,0,0,0)",
+    nodeRelSize: 5,
+    nodeThreeObject,
+    nodeLabel,
+    linkColor,
+    linkWidth: 0.5,
+    linkOpacity: isDark ? 0.5 : 0.6,
+    linkLabel: (link: LinkObject) =>
+      hideTooltipsRef.current ? "" : String(link.label ?? ""),
+    linkDirectionalArrowLength: 3,
+    linkDirectionalArrowRelPos: 1,
+    onNodeClick: handleNodeClick,
+    onBackgroundClick: handleBackgroundClick,
+    onEngineStop: handleEngineStop,
+    showNavInfo: false,
+  };
+
+  return (
+    <>
+      <GraphToolbar
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onFit={handleFit}
+        onReset={handleReset}
+      />
+      <div ref={containerRef} className="h-full w-full overflow-hidden">
+        {Graph && size.width > 0 && (
+          <Graph
+            ref={fgRef as React.MutableRefObject<ForceGraphMethods | undefined>}
+            {...fgProps}
+          />
+        )}
+      </div>
+    </>
+  );
+}
+
+/**
+ * Build a camera-facing text sprite for an always-visible node label. The
+ * text is drawn to a canvas and used as a sprite texture; the SpriteMaterial
+ * is cached per (text, color, opacity) so repeated labels share a texture.
+ */
+function buildLabelSprite(
+  three: ThreeModule,
+  text: string,
+  color: string,
+  opacity: number,
+  cache: Map<string, InstanceType<ThreeModule["SpriteMaterial"]>>
+): InstanceType<ThreeModule["Sprite"]> {
+  const key = `${text}|${color}|${opacity}`;
+  let material = cache.get(key);
+  if (!material) {
+    const fontSize = 40;
+    const font = `${fontSize}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+    const measureCtx = document.createElement("canvas").getContext("2d")!;
+    measureCtx.font = font;
+    const textWidth = Math.ceil(measureCtx.measureText(text).width);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = textWidth + 8;
+    canvas.height = fontSize + 8;
+    const ctx = canvas.getContext("2d")!;
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const texture = new three.CanvasTexture(canvas);
+    texture.colorSpace = three.SRGBColorSpace;
+    texture.minFilter = three.LinearFilter;
+    material = new three.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      opacity,
+      depthWrite: false,
+    });
+    material.userData.aspect = canvas.width / canvas.height;
+    cache.set(key, material);
+  }
+
+  const sprite = new three.Sprite(material);
+  const height = 4;
+  const aspect = (material.userData.aspect as number) ?? 4;
+  sprite.scale.set(height * aspect, height, 1);
+  sprite.position.set(0, -10, 0);
+  return sprite;
+}
+
+/** Resolve a link endpoint (string id or resolved node object) to its id. */
+function endpointId(endpoint: LinkObject["source"]): string {
+  if (endpoint && typeof endpoint === "object") return String(endpoint.id);
+  return String(endpoint);
+}
+
+/**
+ * Build the hover-tooltip HTML for a node in the 3D view. Mirrors the
+ * 2D `NodeTooltip` card — same theme variables, layout, and typography —
+ * so the two modes show a consistent tooltip. (The 3D engine injects raw
+ * HTML for tooltips, so this is the string form of that card.)
+ */
+function renderTooltipHtml(node: GraphNode): string {
+  const muted = "var(--muted-foreground,#737373)";
+  const entries = node.properties ? Object.entries(node.properties) : [];
+  const visible = entries.slice(0, 8);
+  const remaining = entries.length - visible.length;
+
+  const rows = visible
+    .map(
+      ([key, value]) =>
+        `<div style="display:flex;align-items:baseline;gap:8px;font-size:11px;line-height:1.25">` +
+        `<span style="flex-shrink:0;color:${muted}">${escapeHtml(key)}</span>` +
+        `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--foreground,#1a1a1a)">${escapeHtml(value)}</span>` +
+        `</div>`
+    )
+    .join("");
+  const more =
+    remaining > 0
+      ? `<div style="margin-top:2px;font-size:10px;color:${muted}">+${remaining} more</div>`
+      : "";
+  const type = node.type
+    ? `<div style="margin-top:2px;font-size:10px;font-family:ui-monospace,monospace;color:${muted}">${escapeHtml(node.type)}</div>`
+    : "";
+  const props =
+    visible.length > 0
+      ? `<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border,#e5e5e5);` +
+        `display:flex;flex-direction:column;gap:4px">${rows}${more}</div>`
+      : "";
+
+  return (
+    `<div style="width:240px;padding:10px 12px;border-radius:8px;` +
+    `border:1px solid var(--border,#e5e5e5);background:var(--popover,#fff);` +
+    `color:var(--popover-foreground,#1a1a1a);` +
+    `box-shadow:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -4px rgba(0,0,0,0.1);` +
+    `font-family:inherit">` +
+    `<div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(node.label)}</div>` +
+    `${type}` +
+    `${props}` +
+    `</div>`
+  );
+}
+
+// --- Type legend ---
+
+function TypeLegend({ types, isDark }: { types: string[]; isDark: boolean }) {
+  return (
+    <div className="absolute left-3 bottom-3 z-10 flex flex-col gap-1 rounded-md border bg-[var(--card,#fff)]/95 px-2.5 py-2 backdrop-blur-sm">
+      {types.map(type => {
+        const color = typeColor(type, isDark);
+        return (
+          <div key={type} className="flex items-center gap-2">
+            <div
+              className="size-3 rounded-full shrink-0"
+              style={{
+                backgroundColor: color.bg,
+                border: `1.5px solid ${color.border}`,
+              }}
+            />
+            <span className="text-[11px] text-[var(--muted-foreground,#737373)]">
+              {type}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-// --- Tooltip ---
+// --- Tooltip (2D) ---
 
 interface NodeTooltipProps extends TooltipState {
   onMouseEnter: () => void;
@@ -761,7 +1320,97 @@ function NodeTooltip({
   );
 }
 
-// --- Toolbar button ---
+// --- Toolbar ---
+
+function GraphToolbar({
+  onZoomIn,
+  onZoomOut,
+  onFit,
+  onReset,
+}: {
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onFit: () => void;
+  onReset: () => void;
+}) {
+  return (
+    <div className="absolute left-3 top-3 z-10 flex items-center gap-1 rounded-md border bg-[var(--card,#fff)]/95 p-1 backdrop-blur-sm">
+      <ToolbarButton onClick={onZoomIn} title="Zoom in">
+        <ZoomInIcon />
+      </ToolbarButton>
+      <ToolbarButton onClick={onZoomOut} title="Zoom out">
+        <ZoomOutIcon />
+      </ToolbarButton>
+      <ToolbarButton onClick={onFit} title="Fit to view">
+        <FitIcon />
+      </ToolbarButton>
+      <ToolbarButton onClick={onReset} title="Reset layout">
+        <ResetIcon />
+      </ToolbarButton>
+    </div>
+  );
+}
+
+function DimensionToggle({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: GraphDimensions;
+  onChange: (value: GraphDimensions) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="absolute right-3 top-3 z-10 flex items-center gap-0.5 rounded-md border bg-[var(--card,#fff)]/95 p-1 backdrop-blur-sm">
+      <DimensionButton
+        active={value === "2d"}
+        disabled={disabled}
+        title="2D view"
+        onClick={() => onChange("2d")}
+      >
+        2D
+      </DimensionButton>
+      <DimensionButton
+        active={value === "3d"}
+        disabled={disabled}
+        title="3D view"
+        onClick={() => onChange("3d")}
+      >
+        3D
+      </DimensionButton>
+    </div>
+  );
+}
+
+function DimensionButton({
+  active,
+  disabled,
+  title,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  title: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      disabled={disabled}
+      className={cn(
+        "inline-flex items-center justify-center h-7 min-w-9 px-2 rounded-sm text-[11px] font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none",
+        active
+          ? "bg-[var(--accent,#f5f5f5)] text-[var(--accent-foreground,#1a1a1a)]"
+          : "text-[var(--muted-foreground,#737373)] hover:bg-[var(--accent,#f5f5f5)] hover:text-[var(--accent-foreground,#1a1a1a)]"
+      )}
+    >
+      {children}
+    </button>
+  );
+}
 
 function ToolbarButton({
   onClick,
