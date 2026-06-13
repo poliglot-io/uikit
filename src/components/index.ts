@@ -1,5 +1,6 @@
 // Base shadcn components
 export * from "./accordion";
+export * from "./action";
 export * from "./alert-dialog";
 export * from "./alert";
 export * from "./aspect-ratio";
@@ -31,6 +32,7 @@ export * from "./navigation-menu";
 export * from "./pagination";
 export * from "./popover";
 export * from "./progress";
+export * from "./query";
 export * from "./radio-group";
 export * from "./resizable";
 export * from "./scroll-area";

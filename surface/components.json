@@ -263,6 +263,327 @@
       "variants": []
     },
     {
+      "file": "src/components/action.tsx",
+      "jsdoc": "Action primitives.\n\nOn interaction, call a host-provided action handler with a plain,\nserializable descriptor. The kit defines the handler interface plus\nthe presentational component and its pending / disabled / success /\nerror states; it does NOT implement the action itself.\n\nThe host supplies an `ActionHandler` — an async function that takes a\ndescriptor (an opaque action identifier, an optional subject id, and a\nplain JSON payload) and resolves to a plain result. Wire it once with\n`ActionProvider`, or pass a `handler` prop directly. Trigger actions\nwith the `useAction` hook or the `<ActionButton>` component.",
+      "components": [
+        {
+          "name": "ActionButton",
+          "description": "Button that dispatches an action descriptor to the host's handler on\nclick. Disables itself and (by default) shows a spinner while the\naction is pending; reflects error state via `aria-invalid`. The host\nowns what the action does.",
+          "inherits": [
+            "DOMAttributes",
+            "HTMLAttributes",
+            "React.AriaAttributes",
+            "React.Attributes",
+            "React.RefAttributes"
+          ],
+          "props": [
+            {
+              "name": "action",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "Opaque action identifier passed to the handler.",
+              "origin": "ActionButtonProps"
+            },
+            {
+              "name": "asChild",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "this"
+            },
+            {
+              "name": "disabled",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "form",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "formAction",
+              "type": "string | ((formData: FormData) => void | Promise<void>)",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "formEncType",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "formMethod",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "formNoValidate",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "formTarget",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "handler",
+              "type": "ActionHandler",
+              "required": false,
+              "default": null,
+              "description": "Override the provided handler for this button.",
+              "origin": "ActionButtonProps"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "onError",
+              "type": "((error: Error, descriptor: ActionDescriptor) => void)",
+              "required": false,
+              "default": null,
+              "description": "Called after a failed run with the error.",
+              "origin": "ActionButtonProps"
+            },
+            {
+              "name": "onSuccess",
+              "type": "((result: unknown, descriptor: ActionDescriptor) => void)",
+              "required": false,
+              "default": null,
+              "description": "Called after a successful run with the handler's result.",
+              "origin": "ActionButtonProps"
+            },
+            {
+              "name": "payload",
+              "type": "Record<string, unknown>",
+              "required": false,
+              "default": null,
+              "description": "Optional plain JSON payload carried with the action.",
+              "origin": "ActionButtonProps"
+            },
+            {
+              "name": "showPendingIndicator",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Show a spinner while pending. Defaults to true.",
+              "origin": "ActionButtonProps"
+            },
+            {
+              "name": "size",
+              "type": "\"default\" | \"sm\" | \"lg\" | \"icon\" | null",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "this"
+            },
+            {
+              "name": "subject",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": "Optional id of the subject the action applies to.",
+              "origin": "ActionButtonProps"
+            },
+            {
+              "name": "type",
+              "type": "enum",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "value",
+              "type": "string | number | readonly string[]",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "variant",
+              "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | null",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "this"
+            }
+          ]
+        },
+        {
+          "name": "ActionProvider",
+          "description": "Provide an `ActionHandler` to descendant action primitives. The host\nowns the handler and the action layer behind it.",
+          "inherits": [],
+          "props": [
+            {
+              "name": "children",
+              "type": "ReactNode",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "ActionProviderProps"
+            },
+            {
+              "name": "handler",
+              "type": "ActionHandler",
+              "required": true,
+              "default": null,
+              "description": "The async handler the kit's action primitives will call.",
+              "origin": "ActionProviderProps"
+            }
+          ]
+        },
+        {
+          "name": "useAction",
+          "description": "Invoke a host-provided action handler and track its pending / success\n/ error state. Concurrent invocations are ignored while one is in\nflight; the in-flight request is aborted on unmount.",
+          "inherits": [],
+          "props": [
+            {
+              "name": "handler",
+              "type": "ActionHandler",
+              "required": false,
+              "default": null,
+              "description": "Override the provided handler for this call.",
+              "origin": "UseActionOptions"
+            },
+            {
+              "name": "onError",
+              "type": "((error: Error, descriptor: ActionDescriptor) => void)",
+              "required": false,
+              "default": null,
+              "description": "Called after a failed run with the error.",
+              "origin": "UseActionOptions"
+            },
+            {
+              "name": "onSuccess",
+              "type": "((result: unknown, descriptor: ActionDescriptor) => void)",
+              "required": false,
+              "default": null,
+              "description": "Called after a successful run with the handler's result.",
+              "origin": "UseActionOptions"
+            }
+          ]
+        },
+        {
+          "name": "useActionHandler",
+          "description": "Access the handler provided by the nearest `ActionProvider`. Throws\nwhen called outside a provider and no explicit handler is supplied.",
+          "inherits": [],
+          "props": [
+            {
+              "name": "__@hasInstance@1892",
+              "type": "(value: any) => boolean",
+              "required": true,
+              "default": null,
+              "description": "Determines whether the given value inherits from this function if this function was used\nas a constructor function.\n\nA constructor function can control which objects are recognized as its instances by\n'instanceof' by overriding this method.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "apply",
+              "type": "{ <T, R>(this: (this: T) => R, thisArg: T): R; <T, A extends any[], R>(this: (this: T, ...args: A) => R, thisArg: T, args: A): R; }",
+              "required": true,
+              "default": null,
+              "description": "Calls the function with the specified object as the this value and the elements of specified array as the arguments.\n@param thisArg The object to be used as the this object.\n@param thisArg The object to be used as the this object.\n@param args An array of argument values to be passed to the function.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "arguments",
+              "type": "any",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "bind",
+              "type": "{ <T>(this: T, thisArg: ThisParameterType<T>): OmitThisParameter<T>; <T, A extends any[], B extends any[], R>(this: (this: T, ...args: [...A, ...B]) => R, thisArg: T, ...args: A): (...args: B) => R; }",
+              "required": true,
+              "default": null,
+              "description": "For a given function, creates a bound function that has the same body as the original function.\nThe this object of the bound function is associated with the specified object, and has the specified initial parameters.\n@param thisArg The object to be used as the this object.\n@param thisArg The object to be used as the this object.\n@param args Arguments to bind to the parameters of the function.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "call",
+              "type": "<T, A extends any[], R>(this: (this: T, ...args: A) => R, thisArg: T, ...args: A) => R",
+              "required": true,
+              "default": null,
+              "description": "Calls the function with the specified object as the this value and the specified rest arguments as the arguments.\n@param thisArg The object to be used as the this object.\n@param args Argument values to be passed to the function.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "caller",
+              "type": "Function",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "length",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "Returns the name of the function. Function names are read-only and can not be changed.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "prototype",
+              "type": "any",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "toString",
+              "type": "() => string",
+              "required": false,
+              "default": "function toString() { [native code] }",
+              "description": "Returns a string representation of a function.",
+              "origin": "typescript/lib"
+            }
+          ]
+        }
+      ],
+      "variants": []
+    },
+    {
       "file": "src/components/alert-dialog.tsx",
       "jsdoc": "Modal dialog that interrupts the user and expects a response.\n\nUse for destructive confirmations and other interactions the\nuser shouldn't dismiss casually. For general modals prefer\n`Dialog`; this one blocks dismissal-by-overlay-click by default.",
       "components": [
@@ -12027,6 +12348,271 @@
               "default": null,
               "description": null,
               "origin": "RadixProgress"
+            }
+          ]
+        }
+      ],
+      "variants": []
+    },
+    {
+      "file": "src/components/query.tsx",
+      "jsdoc": "Query-backed data primitives.\n\nRender the result of a host-provided async query function. The kit\ndefines the executor interface plus the presentational rendering and\nloading / empty / error states; it does NOT fetch data itself.\n\nThe host supplies a `QueryExecutor` — an async function that takes an\nopaque query string (plus optional plain parameters) and resolves to\nan array of rows. Wire it once with `QueryProvider`, or pass an\n`executor` prop directly. Consume results with the `useQuery` hook,\nthe `<Query>` render-prop wrapper, or the `<QueryTable>` component.\n\nThe query string is opaque to the kit: the host decides what dialect\nor shape it accepts. Rows are plain serializable records.",
+      "components": [
+        {
+          "name": "Query",
+          "description": "Render-prop wrapper around `useQuery`. Shows a loading view while the\nquery runs and an error view on failure; otherwise calls `children`\nwith the resolved state.",
+          "inherits": [],
+          "props": [
+            {
+              "name": "children",
+              "type": "(state: QueryState<TRow>) => ReactNode",
+              "required": true,
+              "default": null,
+              "description": "Render the loaded rows.",
+              "origin": "QueryProps"
+            },
+            {
+              "name": "enabled",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "Skip execution until true.",
+              "origin": "QueryProps"
+            },
+            {
+              "name": "error",
+              "type": "((error: Error, refetch: () => void) => ReactNode)",
+              "required": false,
+              "default": null,
+              "description": "Optional custom error view. Receives the error.",
+              "origin": "QueryProps"
+            },
+            {
+              "name": "executor",
+              "type": "QueryExecutor<TRow>",
+              "required": false,
+              "default": null,
+              "description": "Override the provided executor for this instance.",
+              "origin": "QueryProps"
+            },
+            {
+              "name": "loading",
+              "type": "ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Optional custom loading view. Defaults to a spinner.",
+              "origin": "QueryProps"
+            },
+            {
+              "name": "params",
+              "type": "QueryParams",
+              "required": false,
+              "default": null,
+              "description": "Plain parameters forwarded to the executor.",
+              "origin": "QueryProps"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "Opaque query string the host's executor interprets.",
+              "origin": "QueryProps"
+            }
+          ]
+        },
+        {
+          "name": "QueryProvider",
+          "description": "Provide a `QueryExecutor` to descendant query primitives. The host\nowns the executor and the data layer behind it.",
+          "inherits": [],
+          "props": [
+            {
+              "name": "children",
+              "type": "ReactNode",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "QueryProviderProps"
+            },
+            {
+              "name": "executor",
+              "type": "QueryExecutor<QueryRow>",
+              "required": true,
+              "default": null,
+              "description": "The async executor the kit's query primitives will call.",
+              "origin": "QueryProviderProps"
+            }
+          ]
+        },
+        {
+          "name": "QueryTable",
+          "description": "Presentational table driven by `useQuery`. Renders skeleton rows\nwhile loading, an empty state when there are no rows, and an error\nstate on failure. The host supplies the executor and column shape.",
+          "inherits": [],
+          "props": [
+            {
+              "name": "className",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": "Extra classes for the table element.",
+              "origin": "QueryTableProps"
+            },
+            {
+              "name": "columns",
+              "type": "QueryColumn<TRow>[]",
+              "required": true,
+              "default": null,
+              "description": "Column definitions.",
+              "origin": "QueryTableProps"
+            },
+            {
+              "name": "emptyDescription",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": "Empty-state description.",
+              "origin": "QueryTableProps"
+            },
+            {
+              "name": "emptyTitle",
+              "type": "string",
+              "required": false,
+              "default": "No results",
+              "description": "Empty-state title when the query returns no rows.",
+              "origin": "QueryTableProps"
+            },
+            {
+              "name": "enabled",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "Skip execution until true.",
+              "origin": "QueryProps"
+            },
+            {
+              "name": "executor",
+              "type": "QueryExecutor<TRow>",
+              "required": false,
+              "default": null,
+              "description": "Override the provided executor for this instance.",
+              "origin": "QueryProps"
+            },
+            {
+              "name": "loading",
+              "type": "ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Optional custom loading view. Defaults to a spinner.",
+              "origin": "QueryProps"
+            },
+            {
+              "name": "params",
+              "type": "QueryParams",
+              "required": false,
+              "default": null,
+              "description": "Plain parameters forwarded to the executor.",
+              "origin": "QueryProps"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "Opaque query string the host's executor interprets.",
+              "origin": "QueryProps"
+            }
+          ]
+        },
+        {
+          "name": "useQuery",
+          "description": "Run a host-provided query and track its loading / success / error\nstate. In-flight requests are aborted when inputs change or the\nconsumer unmounts.",
+          "inherits": [],
+          "props": []
+        },
+        {
+          "name": "useQueryExecutor",
+          "description": "Access the executor provided by the nearest `QueryProvider`. Throws\nwhen called outside a provider and no explicit executor is supplied.",
+          "inherits": [],
+          "props": [
+            {
+              "name": "__@hasInstance@31739",
+              "type": "(value: any) => boolean",
+              "required": true,
+              "default": null,
+              "description": "Determines whether the given value inherits from this function if this function was used\nas a constructor function.\n\nA constructor function can control which objects are recognized as its instances by\n'instanceof' by overriding this method.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "apply",
+              "type": "{ <T, R>(this: (this: T) => R, thisArg: T): R; <T, A extends any[], R>(this: (this: T, ...args: A) => R, thisArg: T, args: A): R; }",
+              "required": true,
+              "default": null,
+              "description": "Calls the function with the specified object as the this value and the elements of specified array as the arguments.\n@param thisArg The object to be used as the this object.\n@param thisArg The object to be used as the this object.\n@param args An array of argument values to be passed to the function.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "arguments",
+              "type": "any",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "bind",
+              "type": "{ <T>(this: T, thisArg: ThisParameterType<T>): OmitThisParameter<T>; <T, A extends any[], B extends any[], R>(this: (this: T, ...args: [...A, ...B]) => R, thisArg: T, ...args: A): (...args: B) => R; }",
+              "required": true,
+              "default": null,
+              "description": "For a given function, creates a bound function that has the same body as the original function.\nThe this object of the bound function is associated with the specified object, and has the specified initial parameters.\n@param thisArg The object to be used as the this object.\n@param thisArg The object to be used as the this object.\n@param args Arguments to bind to the parameters of the function.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "call",
+              "type": "<T, A extends any[], R>(this: (this: T, ...args: A) => R, thisArg: T, ...args: A) => R",
+              "required": true,
+              "default": null,
+              "description": "Calls the function with the specified object as the this value and the specified rest arguments as the arguments.\n@param thisArg The object to be used as the this object.\n@param args Argument values to be passed to the function.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "caller",
+              "type": "Function",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "length",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "Returns the name of the function. Function names are read-only and can not be changed.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "prototype",
+              "type": "any",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "toString",
+              "type": "() => string",
+              "required": false,
+              "default": "function toString() { [native code] }",
+              "description": "Returns a string representation of a function.",
+              "origin": "typescript/lib"
             }
           ]
         }
