@@ -157,10 +157,6 @@
       "types": "./dist/components/progress.d.ts",
       "default": "./dist/components/progress.js"
     },
-    "./components/query": {
-      "types": "./dist/components/query.d.ts",
-      "default": "./dist/components/query.js"
-    },
     "./components/radio-group": {
       "types": "./dist/components/radio-group.d.ts",
       "default": "./dist/components/radio-group.js"
