@@ -41,12 +41,13 @@ describe("isSparqlTrigger", () => {
   });
 
   it("narrows the union by the brand key, not by payload", () => {
-    // Both shapes are recognized purely by the marker, so a guarded value
-    // can carry either `query` or `ref`.
+    // The guard keys off the marker alone, so a value carrying only `ref`
+    // (no `query`) is still accepted and narrowed to the reference shape.
     const value: unknown = { $$sparqlTrigger: true, ref: "token" };
     expect(isSparqlTrigger(value)).toBe(true);
     if (isSparqlTrigger(value)) {
-      expect("ref" in value || "query" in value).toBe(true);
+      const ref = value as SparqlTriggerRef;
+      expect(ref.ref).toBe("token");
     }
   });
 
