@@ -95,3 +95,55 @@ export function TriggerProvider({ executor, children }: TriggerProviderProps) {
 export function useTrigger(): TriggerExecutor | null {
   return React.useContext(TriggerContext);
 }
+
+/**
+ * An `onClick` value any interactive primitive accepts: either a normal
+ * React click handler or a serializable `SparqlTrigger` descriptor.
+ */
+export type ClickableHandler<E extends Element = Element> =
+  | React.MouseEventHandler<E>
+  | SparqlTrigger;
+
+/** What `useResolvedClick` returns: a real handler plus pending state. */
+export interface ResolvedClick<E extends Element = Element> {
+  /** A real click handler to spread onto the element (or `undefined`). */
+  onClick: React.MouseEventHandler<E> | undefined;
+  /** True while a trigger's executor is in flight; otherwise false. */
+  pending: boolean;
+}
+
+/**
+ * Single source of truth that lets ANY interactive primitive accept a
+ * `SparqlTrigger` on its `onClick`. Route every clickable's `onClick`
+ * through this hook so a trigger works uniformly across the kit and new
+ * components inherit the behavior for free.
+ *
+ *   const { onClick, pending } = useResolvedClick(onClickProp);
+ *   return <El onClick={onClick} aria-busy={pending || undefined} ... />;
+ *
+ * Behavior:
+ * - Given a `SparqlTrigger`: returns a handler that, on click, hands the
+ *   descriptor to the executor from the nearest `TriggerProvider`, exposing
+ *   `pending` while it is in flight and ignoring re-clicks until it settles.
+ *   With no executor in scope, clicking is a safe no-op.
+ * - Given a normal handler: passes it through unchanged, `pending` stays
+ *   false.
+ * - Given `undefined`: returns `undefined`, `pending` stays false.
+ */
+export function useResolvedClick<E extends Element = Element>(
+  onClick: ClickableHandler<E> | undefined
+): ResolvedClick<E> {
+  const executor = useTrigger();
+  const [pending, setPending] = React.useState(false);
+
+  if (!isSparqlTrigger(onClick)) {
+    return { onClick: onClick, pending: false };
+  }
+
+  const handle: React.MouseEventHandler<E> = () => {
+    if (!executor || pending) return;
+    setPending(true);
+    void executor(onClick).finally(() => setPending(false));
+  };
+  return { onClick: handle, pending };
+}

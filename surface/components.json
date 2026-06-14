@@ -302,6 +302,117 @@
           ]
         },
         {
+          "name": "useResolvedClick",
+          "description": "Single source of truth that lets ANY interactive primitive accept a\n`SparqlTrigger` on its `onClick`. Route every clickable's `onClick`\nthrough this hook so a trigger works uniformly across the kit and new\ncomponents inherit the behavior for free.\n\n  const { onClick, pending } = useResolvedClick(onClickProp);\n  return <El onClick={onClick} aria-busy={pending || undefined} ... />;\n\nBehavior:\n- Given a `SparqlTrigger`: returns a handler that, on click, hands the\n  descriptor to the executor from the nearest `TriggerProvider`, exposing\n  `pending` while it is in flight and ignoring re-clicks until it settles.\n  With no executor in scope, clicking is a safe no-op.\n- Given a normal handler: passes it through unchanged, `pending` stays\n  false.\n- Given `undefined`: returns `undefined`, `pending` stays false.",
+          "inherits": [],
+          "props": [
+            {
+              "name": "__@hasInstance@1111",
+              "type": "(value: any) => boolean",
+              "required": true,
+              "default": null,
+              "description": "Determines whether the given value inherits from this function if this function was used\nas a constructor function.\n\nA constructor function can control which objects are recognized as its instances by\n'instanceof' by overriding this method.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "$$sparqlTrigger",
+              "type": "true",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "SparqlTrigger"
+            },
+            {
+              "name": "apply",
+              "type": "{ <T, R>(this: (this: T) => R, thisArg: T): R; <T, A extends any[], R>(this: (this: T, ...args: A) => R, thisArg: T, args: A): R; }",
+              "required": true,
+              "default": null,
+              "description": "Calls the function with the specified object as the this value and the elements of specified array as the arguments.\n@param thisArg The object to be used as the this object.\n@param thisArg The object to be used as the this object.\n@param args An array of argument values to be passed to the function.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "arguments",
+              "type": "any",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "bind",
+              "type": "{ <T>(this: T, thisArg: ThisParameterType<T>): OmitThisParameter<T>; <T, A extends any[], B extends any[], R>(this: (this: T, ...args: [...A, ...B]) => R, thisArg: T, ...args: A): (...args: B) => R; }",
+              "required": true,
+              "default": null,
+              "description": "For a given function, creates a bound function that has the same body as the original function.\nThe this object of the bound function is associated with the specified object, and has the specified initial parameters.\n@param thisArg The object to be used as the this object.\n@param thisArg The object to be used as the this object.\n@param args Arguments to bind to the parameters of the function.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "call",
+              "type": "<T, A extends any[], R>(this: (this: T, ...args: A) => R, thisArg: T, ...args: A) => R",
+              "required": true,
+              "default": null,
+              "description": "Calls the function with the specified object as the this value and the specified rest arguments as the arguments.\n@param thisArg The object to be used as the this object.\n@param args Argument values to be passed to the function.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "caller",
+              "type": "Function",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "length",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "Returns the name of the function. Function names are read-only and can not be changed.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "params",
+              "type": "Record<string, unknown>",
+              "required": false,
+              "default": null,
+              "description": "Optional plain parameters carried alongside the script.",
+              "origin": "SparqlTrigger"
+            },
+            {
+              "name": "prototype",
+              "type": "any",
+              "required": true,
+              "default": null,
+              "description": null,
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "The script the host's executor receives verbatim.",
+              "origin": "SparqlTrigger"
+            },
+            {
+              "name": "toString",
+              "type": "(() => string) | (() => string)",
+              "required": false,
+              "default": "function toString() { [native code] }",
+              "description": "Returns a string representation of an object.\nReturns a string representation of a function.",
+              "origin": "typescript/lib"
+            }
+          ]
+        },
+        {
           "name": "useTrigger",
           "description": "Access the executor provided by the nearest `TriggerProvider`, or `null`\nwhen none is in scope.",
           "inherits": [],
@@ -1470,7 +1581,7 @@
             },
             {
               "name": "onClick",
-              "type": "MouseEventHandler<HTMLButtonElement> | SparqlTrigger",
+              "type": "ClickableHandler<HTMLButtonElement>",
               "required": false,
               "default": null,
               "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
@@ -2351,7 +2462,16 @@
             "React.Attributes",
             "React.RefAttributes"
           ],
-          "props": []
+          "props": [
+            {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLDivElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor. Pass one to\nmake the card surface itself clickable.",
+              "origin": "this"
+            }
+          ]
         },
         {
           "name": "CardAction",
@@ -2586,7 +2706,7 @@
             },
             {
               "name": "onClick",
-              "type": "MouseEventHandler<HTMLButtonElement> | SparqlTrigger",
+              "type": "ClickableHandler<HTMLButtonElement>",
               "required": false,
               "default": null,
               "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
@@ -2711,7 +2831,7 @@
             },
             {
               "name": "onClick",
-              "type": "MouseEventHandler<HTMLButtonElement> | SparqlTrigger",
+              "type": "ClickableHandler<HTMLButtonElement>",
               "required": false,
               "default": null,
               "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
@@ -5781,6 +5901,14 @@
               "origin": "this"
             },
             {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLDivElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
+              "origin": "this"
+            },
+            {
               "name": "onSelect",
               "type": "((value: string) => void)",
               "required": false,
@@ -6178,6 +6306,14 @@
               "required": false,
               "default": null,
               "description": null,
+              "origin": "this"
+            },
+            {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLDivElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
               "origin": "this"
             },
             {
@@ -8103,6 +8239,14 @@
               "required": false,
               "default": null,
               "description": null,
+              "origin": "this"
+            },
+            {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLDivElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
               "origin": "this"
             },
             {
@@ -10182,6 +10326,14 @@
               "origin": "this"
             },
             {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLDivElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
+              "origin": "this"
+            },
+            {
               "name": "onSelect",
               "type": "((event: Event) => void)",
               "required": false,
@@ -11474,6 +11626,14 @@
               "origin": "React.AnchorHTMLAttributes"
             },
             {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLAnchorElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
+              "origin": "this"
+            },
+            {
               "name": "ping",
               "type": "string",
               "required": false,
@@ -11567,6 +11727,14 @@
               "origin": "React.AnchorHTMLAttributes"
             },
             {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLAnchorElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
+              "origin": "this"
+            },
+            {
               "name": "ping",
               "type": "string",
               "required": false,
@@ -11658,6 +11826,14 @@
               "default": null,
               "description": null,
               "origin": "React.AnchorHTMLAttributes"
+            },
+            {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLAnchorElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
+              "origin": "this"
             },
             {
               "name": "ping",
@@ -14406,6 +14582,14 @@
               "origin": "React.ButtonHTMLAttributes"
             },
             {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLButtonElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
+              "origin": "this"
+            },
+            {
               "name": "size",
               "type": "\"default\" | \"sm\" | \"lg\" | null",
               "required": false,
@@ -14559,6 +14743,14 @@
               "default": null,
               "description": null,
               "origin": "React.AnchorHTMLAttributes"
+            },
+            {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLAnchorElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
+              "origin": "this"
             },
             {
               "name": "ping",
@@ -14875,7 +15067,7 @@
             },
             {
               "name": "onClick",
-              "type": "MouseEventHandler<HTMLButtonElement> | SparqlTrigger",
+              "type": "ClickableHandler<HTMLButtonElement>",
               "required": false,
               "default": null,
               "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
@@ -15949,6 +16141,14 @@
               "origin": "React.ButtonHTMLAttributes"
             },
             {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLButtonElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
+              "origin": "this"
+            },
+            {
               "name": "type",
               "type": "enum",
               "required": false,
@@ -16436,6 +16636,14 @@
               "default": null,
               "description": null,
               "origin": "React.ButtonHTMLAttributes"
+            },
+            {
+              "name": "onClick",
+              "type": "ClickableHandler<HTMLButtonElement>",
+              "required": false,
+              "default": null,
+              "description": "A normal click handler, or a `SparqlTrigger` descriptor.",
+              "origin": "this"
             },
             {
               "name": "onPressedChange",
