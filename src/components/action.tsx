@@ -1,58 +1,39 @@
 /**
- * Trigger interface.
+ * Trigger interface: the React wiring around the pure trigger descriptor.
  *
- * Authors describe an intent as a plain, serializable descriptor and drop
- * it straight onto any clickable's `onClick`. The kit does not run, fetch,
- * or interpret anything: it only defines the descriptor shape and the
- * interface a host wires an executor against.
- *
- * Build a descriptor with `handleSPARQL(...)` and hand it to a clickable:
+ * Authors build a descriptor with `handleSPARQL(...)` (re-exported here
+ * from the pure `./trigger` module) and drop it onto any clickable's
+ * `onClick`:
  *
  *   <Button onClick={handleSPARQL("select ...", params)}>Run</Button>
  *
  * The host injects an executor once with `TriggerProvider`; clickables
- * read it through `useTrigger()` and call it when activated. What the
- * executor actually does is entirely the host's concern.
+ * read it through `useTrigger()` and route their `onClick` through
+ * `useResolvedClick`, which calls the executor when a descriptor is
+ * activated. What the executor actually does is entirely the host's
+ * concern. The descriptor shape, builder, and guard are pure data and
+ * live in `./trigger` so they stay callable from server-rendered code.
  */
 "use client";
 
 import * as React from "react";
 
-/** Brand marking a value as a serializable trigger descriptor. */
-const SPARQL_TRIGGER = "$$sparqlTrigger" as const;
+import {
+  isSparqlTrigger,
+  type ClickableHandler,
+  type SparqlTrigger,
+} from "./trigger";
 
-/**
- * Plain, serializable descriptor produced by `handleSPARQL`. It carries
- * only data so it can cross a serialization boundary; the kit never
- * inspects `query` or `params`.
- */
-export interface SparqlTrigger {
-  readonly [SPARQL_TRIGGER]: true;
-  /** The script the host's executor receives verbatim. */
-  query: string;
-  /** Optional plain parameters carried alongside the script. */
-  params?: Record<string, unknown>;
-}
-
-/**
- * Build a serializable trigger descriptor. Pure: it returns plain data and
- * performs no work. Pass the result as a clickable's `onClick`.
- */
-export function handleSPARQL(
-  query: string,
-  params?: Record<string, unknown>
-): SparqlTrigger {
-  return { [SPARQL_TRIGGER]: true, query, params };
-}
-
-/** Narrow an `onClick` value to a `SparqlTrigger` descriptor. */
-export function isSparqlTrigger(value: unknown): value is SparqlTrigger {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    (value as Record<string, unknown>)[SPARQL_TRIGGER] === true
-  );
-}
+// Re-export the pure descriptor surface so existing imports from
+// `./action` (and the package barrel) keep resolving every name.
+export {
+  handleSPARQL,
+  isSparqlTrigger,
+  type SparqlTrigger,
+  type SparqlTriggerQuery,
+  type SparqlTriggerRef,
+  type ClickableHandler,
+} from "./trigger";
 
 /** Result a host's executor resolves to. */
 export interface TriggerResult {
@@ -95,14 +76,6 @@ export function TriggerProvider({ executor, children }: TriggerProviderProps) {
 export function useTrigger(): TriggerExecutor | null {
   return React.useContext(TriggerContext);
 }
-
-/**
- * An `onClick` value any interactive primitive accepts: either a normal
- * React click handler or a serializable `SparqlTrigger` descriptor.
- */
-export type ClickableHandler<E extends Element = Element> =
-  | React.MouseEventHandler<E>
-  | SparqlTrigger;
 
 /** What `useResolvedClick` returns: a real handler plus pending state. */
 export interface ResolvedClick<E extends Element = Element> {
