@@ -2,128 +2,70 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import { fireEvent } from "@testing-library/dom";
+import { render, renderHook } from "@testing-library/react";
 
 import {
-  ActionButton,
-  ActionProvider,
-  useActionHandler,
-  type ActionHandler,
+  handleSPARQL,
+  isSparqlTrigger,
+  TriggerProvider,
+  useTrigger,
+  type TriggerExecutor,
 } from "../action.js";
 
-describe("ActionProvider / useActionHandler", () => {
-  it("throws when no handler is provided", () => {
-    function Probe() {
-      useActionHandler();
-      return null;
-    }
-    expect(() => render(<Probe />)).toThrow(/ActionHandler/);
+describe("handleSPARQL", () => {
+  it("returns a plain, serializable descriptor", () => {
+    const trigger = handleSPARQL("select ?s where { ?s ?p ?o }", { limit: 10 });
+    expect(trigger).toEqual({
+      $$sparqlTrigger: true,
+      query: "select ?s where { ?s ?p ?o }",
+      params: { limit: 10 },
+    });
+    // Survives a serialization round-trip with no loss.
+    expect(JSON.parse(JSON.stringify(trigger))).toEqual(trigger);
   });
 
-  it("prefers an explicit handler over the provided one", () => {
-    const provided: ActionHandler = vi.fn(async () => undefined);
-    const explicit: ActionHandler = vi.fn(async () => undefined);
-    let resolved: ActionHandler | null = null;
-    function Probe() {
-      resolved = useActionHandler(explicit);
-      return null;
-    }
-    render(
-      <ActionProvider handler={provided}>
-        <Probe />
-      </ActionProvider>
-    );
-    expect(resolved).toBe(explicit);
+  it("omits params when none are given", () => {
+    const trigger = handleSPARQL("select ?s where { ?s ?p ?o }");
+    expect(trigger.params).toBeUndefined();
   });
 });
 
-describe("ActionButton", () => {
-  it("calls the handler with a serializable descriptor on click", async () => {
-    const handler: ActionHandler = vi.fn(async () => ({ ok: true }));
-    render(
-      <ActionProvider handler={handler}>
-        <ActionButton action="publish" subject="entry-1" payload={{ note: "x" }}>
-          Publish
-        </ActionButton>
-      </ActionProvider>
-    );
-
-    fireEvent.click(screen.getByRole("button"));
-
-    await waitFor(() =>
-      expect(handler).toHaveBeenCalledWith(
-        { action: "publish", subject: "entry-1", payload: { note: "x" } },
-        expect.any(AbortSignal)
-      )
-    );
+describe("isSparqlTrigger", () => {
+  it("recognizes descriptors built by handleSPARQL", () => {
+    expect(isSparqlTrigger(handleSPARQL("select 1"))).toBe(true);
   });
 
-  it("disables and marks busy while pending, then succeeds", async () => {
-    let resolveFn: ((v: unknown) => void) | undefined;
-    const handler: ActionHandler = vi.fn(
-      () => new Promise((resolve) => (resolveFn = resolve))
-    );
-    render(
-      <ActionButton action="run" handler={handler}>
-        Run
-      </ActionButton>
-    );
+  it("rejects plain functions and other values", () => {
+    expect(isSparqlTrigger(() => {})).toBe(false);
+    expect(isSparqlTrigger(null)).toBe(false);
+    expect(isSparqlTrigger({})).toBe(false);
+    expect(isSparqlTrigger("select 1")).toBe(false);
+  });
+});
 
-    const button = screen.getByRole("button");
-    fireEvent.click(button);
-
-    await waitFor(() => expect(button).toBeDisabled());
-    expect(button).toHaveAttribute("aria-busy", "true");
-    expect(button).toHaveAttribute("data-status", "pending");
-
-    resolveFn?.({});
-    await waitFor(() =>
-      expect(button).toHaveAttribute("data-status", "success")
-    );
-    expect(button).not.toBeDisabled();
+describe("TriggerProvider / useTrigger", () => {
+  it("returns null outside a provider", () => {
+    const { result } = renderHook(() => useTrigger());
+    expect(result.current).toBeNull();
   });
 
-  it("reflects an error state when the handler rejects", async () => {
-    const handler: ActionHandler = vi.fn(async () => {
-      throw new Error("nope");
+  it("exposes the executor from the nearest provider", () => {
+    const executor: TriggerExecutor = vi.fn(async () => ({ success: true }));
+    const { result } = renderHook(() => useTrigger(), {
+      wrapper: ({ children }) => (
+        <TriggerProvider executor={executor}>{children}</TriggerProvider>
+      ),
     });
-    const onError = vi.fn();
-    render(
-      <ActionButton action="run" handler={handler} onError={onError}>
-        Run
-      </ActionButton>
-    );
-
-    const button = screen.getByRole("button");
-    fireEvent.click(button);
-
-    await waitFor(() =>
-      expect(button).toHaveAttribute("data-status", "error")
-    );
-    expect(button).toHaveAttribute("aria-invalid", "true");
-    expect(onError).toHaveBeenCalledWith(
-      expect.any(Error),
-      expect.objectContaining({ action: "run" })
-    );
+    expect(result.current).toBe(executor);
   });
 
-  it("ignores concurrent clicks while a run is in flight", async () => {
-    let resolveFn: ((v: unknown) => void) | undefined;
-    const handler: ActionHandler = vi.fn(
-      () => new Promise((resolve) => (resolveFn = resolve))
+  it("renders its children", () => {
+    const executor: TriggerExecutor = vi.fn(async () => ({ success: true }));
+    const { getByText } = render(
+      <TriggerProvider executor={executor}>
+        <span>child</span>
+      </TriggerProvider>
     );
-    render(
-      <ActionButton action="run" handler={handler}>
-        Run
-      </ActionButton>
-    );
-    const button = screen.getByRole("button");
-    fireEvent.click(button);
-    fireEvent.click(button);
-    fireEvent.click(button);
-
-    await waitFor(() => expect(handler).toHaveBeenCalledTimes(1));
-    resolveFn?.({});
+    expect(getByText("child")).toBeInTheDocument();
   });
 });
