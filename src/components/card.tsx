@@ -5,14 +5,30 @@
  * `CardContent`, and `CardFooter`. Use for dashboard tiles,
  * list items with rich content, and similar surfaces.
  */
+"use client";
+
 import * as React from "react";
 
 import { cn } from "../lib/utils";
+import { useResolvedClick, type ClickableHandler } from "./action";
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+function Card({
+  className,
+  onClick,
+  ...props
+}: Omit<React.ComponentProps<"div">, "onClick"> & {
+  /**
+   * A normal click handler, or a `SparqlTrigger` descriptor. Pass one to
+   * make the card surface itself clickable.
+   */
+  onClick?: ClickableHandler<HTMLDivElement>;
+}) {
+  const { onClick: handleClick, pending } = useResolvedClick(onClick);
   return (
     <div
       data-slot="card"
+      aria-busy={pending || undefined}
+      onClick={handleClick}
       className={cn(
         "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6",
         className

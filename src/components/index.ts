@@ -1,5 +1,6 @@
 // Base shadcn components
 export * from "./accordion";
+export * from "./action";
 export * from "./alert-dialog";
 export * from "./alert";
 export * from "./aspect-ratio";
@@ -49,3 +50,4 @@ export * from "./textarea";
 export * from "./toggle-group";
 export * from "./toggle";
 export * from "./tooltip";
+export * from "./trigger";

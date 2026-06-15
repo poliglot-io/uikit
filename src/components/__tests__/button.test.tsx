@@ -1,9 +1,12 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent } from "@testing-library/dom";
 import { Button, buttonVariants } from "../button.js";
+import { TriggerProvider, type TriggerExecutor } from "../action.js";
+import { handleSPARQL } from "../trigger.js";
 
 describe("Button", () => {
   describe("rendering", () => {
@@ -139,6 +142,56 @@ describe("Button", () => {
         "Close dialog"
       );
     });
+  });
+});
+
+describe("onClick", () => {
+  it("calls a normal handler as before", () => {
+    const onClick = vi.fn();
+    render(<Button onClick={onClick}>Go</Button>);
+    fireEvent.click(screen.getByRole("button"));
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("hands a SparqlTrigger onClick to the injected executor", async () => {
+    const executor: TriggerExecutor = vi.fn(async () => ({ success: true }));
+    const trigger = handleSPARQL("select ?s where { ?s ?p ?o }", { limit: 5 });
+    render(
+      <TriggerProvider executor={executor}>
+        <Button onClick={trigger}>Run</Button>
+      </TriggerProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button"));
+
+    await waitFor(() => expect(executor).toHaveBeenCalledWith(trigger));
+  });
+
+  it("reflects pending state while the executor is in flight", async () => {
+    let resolveFn: ((v: { success: boolean }) => void) | undefined;
+    const executor: TriggerExecutor = vi.fn(
+      () => new Promise((resolve) => (resolveFn = resolve))
+    );
+    render(
+      <TriggerProvider executor={executor}>
+        <Button onClick={handleSPARQL("select 1")}>Run</Button>
+      </TriggerProvider>
+    );
+
+    const button = screen.getByRole("button");
+    fireEvent.click(button);
+
+    await waitFor(() => expect(button).toBeDisabled());
+    expect(button).toHaveAttribute("aria-busy", "true");
+
+    resolveFn?.({ success: true });
+    await waitFor(() => expect(button).not.toBeDisabled());
+  });
+
+  it("ignores clicks for a trigger when no executor is provided", () => {
+    // No provider in scope: clicking is a no-op, never throws.
+    render(<Button onClick={handleSPARQL("select 1")}>Run</Button>);
+    expect(() => fireEvent.click(screen.getByRole("button"))).not.toThrow();
   });
 });
 

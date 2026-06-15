@@ -5,6 +5,8 @@
  * `PaginationPrevious`, `PaginationNext`, `PaginationLink`,
  * and `PaginationEllipsis` for skipped ranges.
  */
+"use client";
+
 import * as React from "react";
 import {
   ChevronLeftIcon,
@@ -13,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "../lib/utils";
+import { useResolvedClick, type ClickableHandler } from "./action";
 import { Button, buttonVariants } from "./button";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
@@ -46,20 +49,26 @@ function PaginationItem({ ...props }: React.ComponentProps<"li">) {
 
 type PaginationLinkProps = {
   isActive?: boolean;
+  /** A normal click handler, or a `SparqlTrigger` descriptor. */
+  onClick?: ClickableHandler<HTMLAnchorElement>;
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<"a">;
+  Omit<React.ComponentProps<"a">, "onClick">;
 
 function PaginationLink({
   className,
   isActive,
   size = "icon",
+  onClick,
   ...props
 }: PaginationLinkProps) {
+  const { onClick: handleClick, pending } = useResolvedClick(onClick);
   return (
     <a
       aria-current={isActive ? "page" : undefined}
       data-slot="pagination-link"
       data-active={isActive}
+      aria-busy={pending || undefined}
+      onClick={handleClick}
       className={cn(
         buttonVariants({
           variant: isActive ? "outline" : "ghost",
