@@ -9,11 +9,11 @@ import { describe, it, expect, vi } from "vitest";
 import { render, renderHook } from "@testing-library/react";
 
 import {
-  handleSPARQL,
   TriggerProvider,
   useTrigger,
   type TriggerExecutor,
 } from "../action.js";
+import { handleSPARQL } from "../trigger.js";
 
 describe("TriggerProvider / useTrigger", () => {
   it("returns null outside a provider", () => {

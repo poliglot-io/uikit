@@ -12,11 +12,11 @@ import { render, screen, waitFor, renderHook, act } from "@testing-library/react
 import { fireEvent } from "@testing-library/dom";
 
 import {
-  handleSPARQL,
   useResolvedClick,
   TriggerProvider,
   type TriggerExecutor,
 } from "../action.js";
+import { handleSPARQL } from "../trigger.js";
 import { Card } from "../card.js";
 import { Toggle } from "../toggle.js";
 import { Tabs, TabsList, TabsTrigger } from "../tabs.js";

@@ -264,23 +264,11 @@
     },
     {
       "file": "src/components/action.tsx",
-      "jsdoc": "Trigger interface: the React wiring around the pure trigger descriptor.\n\nAuthors build a descriptor with `handleSPARQL(...)` (re-exported here\nfrom the pure `./trigger` module) and drop it onto any clickable's\n`onClick`:\n\n  <Button onClick={handleSPARQL(\"select ...\", params)}>Run</Button>\n\nThe host injects an executor once with `TriggerProvider`; clickables\nread it through `useTrigger()` and route their `onClick` through\n`useResolvedClick`, which calls the executor when a descriptor is\nactivated. What the executor actually does is entirely the host's\nconcern. The descriptor shape, builder, and guard are pure data and\nlive in `./trigger` so they stay callable from server-rendered code.",
+      "jsdoc": "Trigger interface: the React wiring around the pure trigger descriptor.\n\nAuthors build a descriptor with `handleSPARQL(...)` (from the pure\n`./trigger` module) and drop it onto any clickable's `onClick`:\n\n  <Button onClick={handleSPARQL(\"select ...\", params)}>Run</Button>\n\nThe host injects an executor once with `TriggerProvider`; clickables\nread it through `useTrigger()` and route their `onClick` through\n`useResolvedClick`, which calls the executor when a descriptor is\nactivated. What the executor actually does is entirely the host's\nconcern. The descriptor shape, builder, and guard are pure data and\nlive in `./trigger` so they stay callable from server-rendered code.",
       "components": [
         {
           "name": "ClickableHandler",
           "description": "An `onClick` value any interactive primitive accepts: either a normal\nReact click handler or a serializable `SparqlTrigger` descriptor.",
-          "inherits": [],
-          "props": []
-        },
-        {
-          "name": "handleSPARQL",
-          "description": "Build a serializable trigger descriptor. Pure: it returns plain data and\nperforms no work. Pass the result as a clickable's `onClick`.",
-          "inherits": [],
-          "props": []
-        },
-        {
-          "name": "isSparqlTrigger",
-          "description": "Narrow an `onClick` value to a `SparqlTrigger` descriptor.",
           "inherits": [],
           "props": []
         },
@@ -331,7 +319,7 @@
           "inherits": [],
           "props": [
             {
-              "name": "__@hasInstance@1122",
+              "name": "__@hasInstance@1118",
               "type": "(value: any) => boolean",
               "required": true,
               "default": null,

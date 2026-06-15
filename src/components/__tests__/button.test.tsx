@@ -5,11 +5,8 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { fireEvent } from "@testing-library/dom";
 import { Button, buttonVariants } from "../button.js";
-import {
-  handleSPARQL,
-  TriggerProvider,
-  type TriggerExecutor,
-} from "../action.js";
+import { TriggerProvider, type TriggerExecutor } from "../action.js";
+import { handleSPARQL } from "../trigger.js";
 
 describe("Button", () => {
   describe("rendering", () => {

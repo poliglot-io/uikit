@@ -1,9 +1,8 @@
 /**
  * Trigger interface: the React wiring around the pure trigger descriptor.
  *
- * Authors build a descriptor with `handleSPARQL(...)` (re-exported here
- * from the pure `./trigger` module) and drop it onto any clickable's
- * `onClick`:
+ * Authors build a descriptor with `handleSPARQL(...)` (from the pure
+ * `./trigger` module) and drop it onto any clickable's `onClick`:
  *
  *   <Button onClick={handleSPARQL("select ...", params)}>Run</Button>
  *
@@ -24,15 +23,16 @@ import {
   type SparqlTrigger,
 } from "./trigger";
 
-// Re-export the pure descriptor surface so existing imports from
-// `./action` (and the package barrel) keep resolving every name.
-export {
-  handleSPARQL,
-  isSparqlTrigger,
-  type SparqlTrigger,
-  type SparqlTriggerQuery,
-  type SparqlTriggerRef,
-  type ClickableHandler,
+// Re-export ONLY the pure type surface so existing `type`-imports from
+// `./action` keep resolving. Types are erased at compile time and emit no
+// value export, so they never collide with the server module's exports. The
+// value exports (`handleSPARQL`, `isSparqlTrigger`) are NOT re-exported here;
+// consumers reach them through `./trigger` (or the package barrel).
+export type {
+  SparqlTrigger,
+  SparqlTriggerQuery,
+  SparqlTriggerRef,
+  ClickableHandler,
 } from "./trigger";
 
 /** Result a host's executor resolves to. */
