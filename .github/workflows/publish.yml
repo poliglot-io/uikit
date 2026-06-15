@@ -56,5 +56,11 @@ jobs:
           fi
 
       # Auth is via OIDC trusted publishing (no NPM_TOKEN); provenance is automatic.
+      # Prereleases (e.g. 0.1.0-beta.8) go to the `next` dist-tag, never `latest`;
+      # npm also requires an explicit --tag for prerelease versions.
       - name: Publish
-        run: npm publish --provenance --access public
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if [[ "$VERSION" == *-* ]]; then DIST_TAG=next; else DIST_TAG=latest; fi
+          echo "Publishing $VERSION to dist-tag '$DIST_TAG'"
+          npm publish --provenance --access public --tag "$DIST_TAG"
