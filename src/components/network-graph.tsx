@@ -3,34 +3,26 @@
  *
  * Pass nodes and edges as data; interaction handlers cover
  * selection, hover, and expand. The graph can be explored in a
- * 2D force-directed layout (cytoscape, fcose) or navigated in a
- * 3D force-directed scene (react-force-graph-3d / three). Users
- * toggle between the two with the control in the top-right; the
- * default mode is configurable. Used in matrix-author for
- * dependency and relationship views.
+ * 2D force-directed layout (HTML canvas) or navigated in a 3D
+ * force-directed scene (WebGL). Both modes run the same physics
+ * engine; users toggle between them with the control in the
+ * top-right, and the default mode is configurable.
  */
 "use client";
 
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
-import cytoscape from "cytoscape";
-import fcose from "cytoscape-fcose";
-import type { Core, NodeSingular, LayoutOptions } from "cytoscape";
 import type {
-  ForceGraphMethods,
-  ForceGraphProps,
+  ForceGraphMethods as ForceGraphMethods3D,
+  ForceGraphProps as ForceGraphProps3D,
   NodeObject,
   LinkObject,
 } from "react-force-graph-3d";
+import type {
+  ForceGraphMethods as ForceGraphMethods2D,
+  ForceGraphProps as ForceGraphProps2D,
+} from "react-force-graph-2d";
 import type { Side } from "three";
 import { cn } from "../lib/utils";
-
-// Register fcose layout once
-if (
-  typeof cytoscape.prototype === "object" &&
-  !Object.prototype.hasOwnProperty.call(cytoscape.prototype, "fcose")
-) {
-  cytoscape.use(fcose);
-}
 
 // --- Public types ---
 
@@ -198,28 +190,6 @@ function useIsDark(): boolean {
 
 // --- Internal types ---
 
-type FcoseLayoutOptions = LayoutOptions & {
-  name: "fcose";
-  animate?: boolean;
-  animationDuration?: number;
-  randomize?: boolean;
-  nodeDimensionsIncludeLabels?: boolean;
-  idealEdgeLength?: number;
-  nodeRepulsion?: number;
-  gravity?: number;
-  fit?: boolean;
-  fixedNodeConstraint?: Array<{
-    nodeId: string;
-    position: { x: number; y: number };
-  }>;
-};
-
-interface TooltipState {
-  node: GraphNode;
-  x: number;
-  y: number;
-}
-
 interface GraphViewProps {
   nodes: GraphNode[];
   edges: GraphEdge[];
@@ -229,6 +199,239 @@ interface GraphViewProps {
   onSelectNode?: (node: GraphNode | null) => void;
   onExpandNode?: (nodeId: string) => void;
   hideTooltips: boolean;
+}
+
+interface HighlightInfo {
+  keep: Set<string>;
+}
+
+/** Number of physics ticks each view simulates before freezing the layout. */
+const COOLDOWN_TICKS = 100;
+
+// --- Shared graph helpers ---
+
+/**
+ * Tracks the container's pixel size. Both force-graph variants need an explicit
+ * width/height; this mirrors the container with a ResizeObserver.
+ */
+function useContainerSize(ref: React.RefObject<HTMLDivElement | null>) {
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () =>
+      setSize({ width: el.clientWidth, height: el.clientHeight });
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+  return size;
+}
+
+/**
+ * Build the force-graph data. Node objects are reused across renders (keyed by
+ * id) so the simulation keeps their settled positions instead of relaying out
+ * the whole scene on every data change. Each node carries the same pale fill +
+ * colored border the legend uses, so 2D and 3D render an identical look.
+ */
+function useGraphData(nodes: GraphNode[], edges: GraphEdge[], isDark: boolean) {
+  const nodeObjsRef = useRef<Map<string, NodeObject>>(new Map());
+  return useMemo(() => {
+    const map = nodeObjsRef.current;
+    const nextIds = new Set(nodes.map(n => n.id));
+    for (const id of Array.from(map.keys())) {
+      if (!nextIds.has(id)) map.delete(id);
+    }
+    const fgNodes: NodeObject[] = nodes.map(n => {
+      const c = typeColor(n.type, isDark);
+      const label = n.label || n.id;
+      const existing = map.get(n.id);
+      if (existing) {
+        existing.node = n;
+        existing.fill = c.bg;
+        existing.border = c.border;
+        existing.label = label;
+        return existing;
+      }
+      const obj: NodeObject = {
+        id: n.id,
+        label,
+        fill: c.bg,
+        border: c.border,
+        node: n,
+      };
+      map.set(n.id, obj);
+      return obj;
+    });
+    const fgLinks: LinkObject[] = edges.map(e => ({
+      source: e.source,
+      target: e.target,
+      label: e.label ?? "",
+    }));
+    return { nodes: fgNodes, links: fgLinks };
+  }, [nodes, edges, isDark]);
+}
+
+/**
+ * Which ids stay highlighted: the selection neighborhood, or search matches.
+ * `null` means "no dimming". Shared by both views.
+ */
+function useHighlight(
+  nodes: GraphNode[],
+  edges: GraphEdge[],
+  selectedId: string | null | undefined,
+  searchQuery: string | undefined
+): HighlightInfo | null {
+  return useMemo(() => {
+    if (selectedId) {
+      const keep = new Set<string>([selectedId]);
+      for (const e of edges) {
+        if (e.source === selectedId) keep.add(e.target);
+        if (e.target === selectedId) keep.add(e.source);
+      }
+      return { keep };
+    }
+    const query = searchQuery?.trim().toLowerCase();
+    if (query) {
+      const keep = new Set<string>();
+      for (const n of nodes) {
+        if ((n.label || "").toLowerCase().includes(query)) keep.add(n.id);
+      }
+      return { keep };
+    }
+    return null;
+  }, [selectedId, searchQuery, nodes, edges]);
+}
+
+/**
+ * Fit-on-settle latch. Returns an `onEngineStop` handler that fits the scene
+ * into view the first time the layout settles, plus resets the latch whenever
+ * the graph transitions in and out of the empty state. Shared by both views;
+ * the caller supplies the fit action against its own force-graph instance.
+ */
+function useFitOnSettle(nodeCount: number, fit: () => void) {
+  const didFitRef = useRef(false);
+  const isEmpty = nodeCount === 0;
+  useEffect(() => {
+    didFitRef.current = false;
+  }, [isEmpty]);
+  const fitRef = useRef(fit);
+  fitRef.current = fit;
+  return useCallback(() => {
+    if (!didFitRef.current && nodeCount > 0) {
+      fitRef.current();
+      didFitRef.current = true;
+    }
+  }, [nodeCount]);
+}
+
+/** Resolve a link endpoint (string id or resolved node object) to its id. */
+function endpointId(endpoint: LinkObject["source"]): string {
+  if (endpoint && typeof endpoint === "object") return String(endpoint.id);
+  return String(endpoint);
+}
+
+/** Whether a link should render dimmed under the current highlight. */
+function linkDimmed(link: LinkObject, highlight: HighlightInfo | null): boolean {
+  if (!highlight) return false;
+  const s = endpointId(link.source);
+  const t = endpointId(link.target);
+  return !highlight.keep.has(s) || !highlight.keep.has(t);
+}
+
+/**
+ * Distinguish a single click (select) from a double click (expand). Returns a
+ * click handler shared by both views; the 3D caller layers camera easing on
+ * top before delegating here.
+ */
+function useNodeClickDispatch(
+  onSelect: React.RefObject<((node: GraphNode | null) => void) | undefined>,
+  onExpand: React.RefObject<((nodeId: string) => void) | undefined>
+) {
+  const lastClickRef = useRef<{ id: string; time: number }>({
+    id: "",
+    time: 0,
+  });
+  return useCallback(
+    (node: NodeObject) => {
+      const id = String(node.id);
+      const graphNode = (node.node as GraphNode | undefined) ?? null;
+      const now = Date.now();
+      const last = lastClickRef.current;
+      if (last.id === id && now - last.time < 300) {
+        lastClickRef.current = { id: "", time: 0 };
+        onExpand.current?.(id);
+      } else {
+        lastClickRef.current = { id, time: now };
+        onSelect.current?.(graphNode);
+      }
+    },
+    [onSelect, onExpand]
+  );
+}
+
+/**
+ * Build the hover-tooltip HTML for a node. Used by both views (the force-graph
+ * engine injects raw HTML for tooltips), so the two modes show a consistent
+ * card — same theme variables, layout, and typography.
+ */
+function renderTooltipHtml(node: GraphNode): string {
+  const muted = "var(--muted-foreground,#737373)";
+  const entries = node.properties ? Object.entries(node.properties) : [];
+  const visible = entries.slice(0, 8);
+  const remaining = entries.length - visible.length;
+
+  const rows = visible
+    .map(
+      ([key, value]) =>
+        `<div style="display:flex;align-items:baseline;gap:8px;font-size:11px;line-height:1.25">` +
+        `<span style="flex-shrink:0;color:${muted}">${escapeHtml(key)}</span>` +
+        `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--foreground,#1a1a1a)">${escapeHtml(value)}</span>` +
+        `</div>`
+    )
+    .join("");
+  const more =
+    remaining > 0
+      ? `<div style="margin-top:2px;font-size:10px;color:${muted}">+${remaining} more</div>`
+      : "";
+  const type = node.type
+    ? `<div style="margin-top:2px;font-size:10px;font-family:ui-monospace,monospace;color:${muted}">${escapeHtml(node.type)}</div>`
+    : "";
+  const props =
+    visible.length > 0
+      ? `<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border,#e5e5e5);` +
+        `display:flex;flex-direction:column;gap:4px">${rows}${more}</div>`
+      : "";
+
+  return (
+    `<div style="width:240px;padding:10px 12px;border-radius:8px;` +
+    `border:1px solid var(--border,#e5e5e5);background:var(--popover,#fff);` +
+    `color:var(--popover-foreground,#1a1a1a);` +
+    `box-shadow:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -4px rgba(0,0,0,0.1);` +
+    `font-family:inherit">` +
+    `<div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(node.label)}</div>` +
+    `${type}` +
+    `${props}` +
+    `</div>`
+  );
+}
+
+// The force-graph engine renders tooltips through the `float-tooltip` library,
+// which wraps the label HTML in a `.float-tooltip-kap` element with its own
+// background, padding, and border. Strip that chrome so our themed card is the
+// only thing the user sees. Shared by both views.
+const TOOLTIP_STYLE_ID = "poliglot-network-graph-tooltip";
+const TOOLTIP_STYLE = `.float-tooltip-kap{background:transparent!important;border:0!important;padding:0!important;border-radius:0!important;box-shadow:none!important;font:inherit!important;color:inherit!important;}`;
+
+function useNeutralizeTooltipChrome() {
+  useEffect(() => {
+    if (document.getElementById(TOOLTIP_STYLE_ID)) return;
+    const style = document.createElement("style");
+    style.id = TOOLTIP_STYLE_ID;
+    style.textContent = TOOLTIP_STYLE;
+    document.head.appendChild(style);
+  }, []);
 }
 
 // --- Component (mode wrapper) ---
@@ -320,69 +523,12 @@ export function NetworkGraph({
   );
 }
 
-// --- 2D view (cytoscape) ---
+// --- 2D view (react-force-graph-2d / canvas) ---
 
-function createStylesheet(isDark: boolean) {
-  const fg = isDark ? "#e5e5e5" : "#1a1a1a";
-  const muted = isDark ? "#404040" : "#e5e5e5";
-  const mutedFg = isDark ? "#a3a3a3" : "#737373";
+type Graph2DComponent = (typeof import("react-force-graph-2d"))["default"];
 
-  return [
-    {
-      selector: "node",
-      style: {
-        label: "data(label)",
-        "text-valign": "bottom" as const,
-        "text-halign": "center" as const,
-        "text-margin-y": 6,
-        "font-size": "10px",
-        color: fg,
-        "background-color": "data(color)" as unknown as string,
-        "border-color": "data(borderColor)" as unknown as string,
-        "border-width": 2,
-        width: 28,
-        height: 28,
-      },
-    },
-    {
-      selector: "node:selected",
-      style: { width: 34, height: 34, "border-width": 3 },
-    },
-    {
-      selector: "node.dimmed",
-      style: { opacity: 0.3 },
-    },
-    {
-      selector: "edge",
-      style: {
-        width: 1,
-        "line-color": muted,
-        "target-arrow-color": muted,
-        "target-arrow-shape": "triangle" as const,
-        "curve-style": "bezier" as const,
-        "arrow-scale": 0.6,
-        label: "data(label)",
-        "font-size": "8px",
-        "text-rotation": "autorotate" as const,
-        "text-margin-y": -12,
-        color: mutedFg,
-        "text-max-width": 80,
-        "text-wrap": "ellipsis" as const,
-      },
-    },
-    {
-      selector: "edge.dimmed",
-      style: { opacity: 0.15 },
-    },
-  ];
-}
-
-const LAYOUT_BASE: Omit<FcoseLayoutOptions, "name"> = {
-  nodeDimensionsIncludeLabels: true,
-  idealEdgeLength: 160,
-  nodeRepulsion: 8000,
-  gravity: 0.25,
-};
+const NODE_RADIUS = 5;
+const NODE_BORDER = 1.4;
 
 function NetworkGraph2D({
   nodes,
@@ -395,328 +541,181 @@ function NetworkGraph2D({
   hideTooltips,
 }: GraphViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const cyRef = useRef<Core | null>(null);
-  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const fgRef = useRef<ForceGraphMethods2D | undefined>(undefined);
 
-  // Stable ref for hideTooltips (captured in init effect)
-  const hideTooltipsRef = useRef(hideTooltips);
-  hideTooltipsRef.current = hideTooltips;
+  useNeutralizeTooltipChrome();
 
-  // Track whether cursor is over the tooltip card
-  const tooltipHoveredRef = useRef(false);
-
-  // Store node map for lookups
-  const nodeMapRef = useRef<Map<string, GraphNode>>(new Map());
+  // react-force-graph-2d touches `window`, so load it on the client only.
+  // Until loaded, render an empty container.
+  const [Graph, setGraph] = useState<Graph2DComponent | null>(null);
   useEffect(() => {
-    const map = new Map<string, GraphNode>();
-    nodes.forEach(n => map.set(n.id, n));
-    nodeMapRef.current = map;
-  }, [nodes]);
+    let active = true;
+    import("react-force-graph-2d").then(mod => {
+      if (active) setGraph(() => mod.default);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const size = useContainerSize(containerRef);
 
   // Stable callback refs
   const onSelectNodeRef = useRef(onSelectNode);
   onSelectNodeRef.current = onSelectNode;
   const onExpandNodeRef = useRef(onExpandNode);
   onExpandNodeRef.current = onExpandNode;
+  const hideTooltipsRef = useRef(hideTooltips);
+  hideTooltipsRef.current = hideTooltips;
 
-  // Initialize cytoscape
-  useEffect(() => {
-    if (!containerRef.current || cyRef.current) return;
+  const graphData = useGraphData(nodes, edges, isDark);
+  const highlight = useHighlight(nodes, edges, selectedId, searchQuery);
 
-    const cy = cytoscape({
-      container: containerRef.current,
-      elements: [],
-      style: createStylesheet(isDark) as cytoscape.StylesheetJsonBlock[],
-      wheelSensitivity: 0.3,
-      maxZoom: 3,
-      minZoom: 0.2,
-    });
-    cyRef.current = cy;
+  // Label + dim colors, mirroring the 3D view's choices.
+  const dimFill = isDark ? "#3a3a3a" : "#d4d4d4";
+  const dimBorder = isDark ? "#525252" : "#a3a3a3";
+  const labelColor = isDark ? "#e5e5e5" : "#1a1a1a";
+  const dimLabelColor = isDark ? "#737373" : "#a3a3a3";
 
-    cy.on("tap", "node", evt => {
-      const nodeId = evt.target.id();
-      const node = nodeMapRef.current.get(nodeId) ?? null;
-      onSelectNodeRef.current?.(node);
-    });
+  // Draw each node as a pale filled disc with a colored ring and a label
+  // below it — the 2D counterpart of the 3D `nodeThreeObject`.
+  const nodeCanvasObject = useCallback(
+    (node: NodeObject, ctx: CanvasRenderingContext2D, globalScale: number) => {
+      const x = node.x ?? 0;
+      const y = node.y ?? 0;
+      const dimmed = !!highlight && !highlight.keep.has(String(node.id));
+      const fill = dimmed ? dimFill : (node.fill as string);
+      const border = dimmed ? dimBorder : (node.border as string);
 
-    cy.on("dbltap", "node", evt => {
-      onExpandNodeRef.current?.(evt.target.id());
-    });
+      ctx.globalAlpha = dimmed ? 0.35 : 1;
 
-    cy.on("tap", evt => {
-      if (evt.target === cy) {
-        onSelectNodeRef.current?.(null);
-        setTooltip(null);
+      ctx.beginPath();
+      ctx.arc(x, y, NODE_RADIUS, 0, 2 * Math.PI);
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.lineWidth = NODE_BORDER;
+      ctx.strokeStyle = border;
+      ctx.stroke();
+
+      const text = String(node.label ?? "");
+      if (text) {
+        const fontSize = Math.max(10 / globalScale, 2.5);
+        ctx.font = `${fontSize}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        ctx.fillStyle = dimmed ? dimLabelColor : labelColor;
+        ctx.fillText(text, x, y + NODE_RADIUS + 2);
       }
-    });
 
-    // Hover tooltip — tracks node position on pan/zoom/drag
-    let hoveredNodeId: string | null = null;
+      ctx.globalAlpha = 1;
+    },
+    [highlight, dimFill, dimBorder, labelColor, dimLabelColor]
+  );
 
-    const updateTooltipPosition = () => {
-      if (!hoveredNodeId || hideTooltipsRef.current) return;
-      const cyNode = cy.getElementById(hoveredNodeId);
-      if (!cyNode.length) return;
-      const graphNode = nodeMapRef.current.get(hoveredNodeId);
-      if (!graphNode) return;
-      // Use rendered bounding box to get the actual top of the node on screen
-      const bb = cyNode.renderedBoundingBox({ includeLabels: false });
-      setTooltip({ node: graphNode, x: (bb.x1 + bb.x2) / 2, y: bb.y1 });
-    };
+  // Keep the clickable area aligned with the drawn disc.
+  const nodePointerAreaPaint = useCallback(
+    (node: NodeObject, color: string, ctx: CanvasRenderingContext2D) => {
+      ctx.beginPath();
+      ctx.arc(node.x ?? 0, node.y ?? 0, NODE_RADIUS + 2, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+    },
+    []
+  );
 
-    cy.on("mouseover", "node", evt => {
-      if (hideTooltipsRef.current) return;
-      hoveredNodeId = (evt.target as NodeSingular).id();
-      updateTooltipPosition();
-    });
+  const linkColor = useCallback(
+    (link: LinkObject) => {
+      const muted = isDark ? "rgba(160,160,160,0.5)" : "rgba(115,115,115,0.5)";
+      if (linkDimmed(link, highlight)) {
+        return isDark ? "rgba(80,80,80,0.15)" : "rgba(200,200,200,0.25)";
+      }
+      return muted;
+    },
+    [highlight, isDark]
+  );
 
-    cy.on("mouseout", "node", () => {
-      hoveredNodeId = null;
-      // Delay closing to allow cursor to move to the tooltip card
-      setTimeout(() => {
-        if (!tooltipHoveredRef.current) {
-          setTooltip(null);
-        }
-      }, 100);
-    });
-
-    // Update tooltip position during pan/zoom/drag
-    cy.on("pan zoom position", () => {
-      updateTooltipPosition();
-    });
-
-    return () => {
-      cy.destroy();
-      cyRef.current = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  const nodeLabel = useCallback((node: NodeObject) => {
+    if (hideTooltipsRef.current) return "";
+    const graphNode = node.node as GraphNode | undefined;
+    if (!graphNode) return "";
+    return renderTooltipHtml(graphNode);
   }, []);
 
-  // Update stylesheet on theme change
-  useEffect(() => {
-    const cy = cyRef.current;
-    if (!cy) return;
-    cy.style(createStylesheet(isDark) as cytoscape.StylesheetJsonBlock[]);
-  }, [isDark]);
+  const handleNodeClick = useNodeClickDispatch(onSelectNodeRef, onExpandNodeRef);
+  const handleBackgroundClick = useCallback(() => {
+    onSelectNodeRef.current?.(null);
+  }, []);
 
-  // Sync elements incrementally
-  useEffect(() => {
-    const cy = cyRef.current;
-    if (!cy) return;
+  // Fit the scene into view once the layout first settles (shared latch).
+  const handleEngineStop = useFitOnSettle(nodes.length, () => {
+    fgRef.current?.zoomToFit(400, 40);
+  });
 
-    const currentNodeIds = new Set(cy.nodes().map(n => n.id()));
-    const targetNodeIds = new Set(nodes.map(n => n.id));
-    const wasEmpty = currentNodeIds.size === 0;
-
-    // Remove stale nodes (edges auto-removed)
-    for (const id of currentNodeIds) {
-      if (!targetNodeIds.has(id)) {
-        cy.getElementById(id).remove();
-      }
-    }
-
-    // Add new nodes
-    const nodesToAdd = nodes.filter(n => !currentNodeIds.has(n.id));
-    for (const node of nodesToAdd) {
-      let position = { x: 0, y: 0 };
-
-      if (!wasEmpty) {
-        // Position near a connected existing node
-        const connectedEdge = edges.find(
-          e =>
-            (e.source === node.id && currentNodeIds.has(e.target)) ||
-            (e.target === node.id && currentNodeIds.has(e.source))
-        );
-        if (connectedEdge) {
-          const connectedId =
-            connectedEdge.source === node.id
-              ? connectedEdge.target
-              : connectedEdge.source;
-          const existing = cy.getElementById(connectedId);
-          if (existing.length) {
-            const p = existing.position();
-            const angle = Math.random() * 2 * Math.PI;
-            const dist = 180 + Math.random() * 60;
-            position = {
-              x: p.x + Math.cos(angle) * dist,
-              y: p.y + Math.sin(angle) * dist,
-            };
-          }
-        }
-      }
-
-      const color = typeColor(node.type, isDark);
-      cy.add({
-        data: {
-          id: node.id,
-          label: node.label || node.id,
-          color: color.bg,
-          borderColor: color.border,
-        },
-        position,
-      });
-    }
-
-    // Diff edges
-    const targetEdgeKeys = new Map<
-      string,
-      { source: string; target: string; label: string }
-    >();
-    for (const edge of edges) {
-      const key = `edge-${edge.source}-${edge.target}-${edge.label ?? ""}`;
-      targetEdgeKeys.set(key, {
-        source: edge.source,
-        target: edge.target,
-        label: edge.label ?? "",
-      });
-    }
-
-    cy.edges().forEach(e => {
-      const key = `edge-${e.data("source")}-${e.data("target")}-${e.data("label") ?? ""}`;
-      if (!targetEdgeKeys.has(key)) e.remove();
-    });
-
-    for (const [key, data] of targetEdgeKeys) {
-      if (!cy.getElementById(key).length) {
-        cy.add({ data: { id: key, ...data } });
-      }
-    }
-
-    // Layout
-    if (nodesToAdd.length > 0) {
-      if (wasEmpty) {
-        cy.layout({
-          name: "fcose",
-          animate: false,
-          randomize: true,
-          ...LAYOUT_BASE,
-        } as FcoseLayoutOptions).run();
-      } else {
-        const newIds = new Set(nodesToAdd.map(n => n.id));
-        const newCyNodes = cy.nodes().filter(n => newIds.has(n.id()));
-        const neighborNodes = newCyNodes.neighborhood().nodes();
-        const subgraph = newCyNodes.union(neighborNodes);
-
-        const fixedNodeConstraint = neighborNodes
-          .filter(n => !newIds.has(n.id()))
-          .map((n: NodeSingular) => ({
-            nodeId: n.id(),
-            position: n.position(),
-          }));
-
-        subgraph
-          .layout({
-            name: "fcose",
-            animate: true,
-            animationDuration: 300,
-            randomize: false,
-            fit: false,
-            fixedNodeConstraint,
-            ...LAYOUT_BASE,
-          } as FcoseLayoutOptions)
-          .run();
-      }
-    }
-  }, [nodes, edges]);
-
-  // Selection highlighting
-  useEffect(() => {
-    const cy = cyRef.current;
-    if (!cy) return;
-
-    cy.nodes().removeClass("dimmed").unselect();
-    cy.edges().removeClass("dimmed");
-
-    if (selectedId) {
-      const selected = cy.getElementById(selectedId);
-      if (selected.length) {
-        selected.select();
-        const connected = selected.neighborhood().nodes();
-        cy.nodes().not(selected).not(connected).addClass("dimmed");
-        cy.edges().not(selected.connectedEdges()).addClass("dimmed");
-      }
-    }
-  }, [selectedId]);
-
-  // Search dimming
-  useEffect(() => {
-    const cy = cyRef.current;
-    if (!cy) return;
-
-    if (!searchQuery?.trim()) {
-      if (!selectedId) {
-        cy.nodes().removeClass("dimmed");
-        cy.edges().removeClass("dimmed");
-      }
-      return;
-    }
-
-    const query = searchQuery.toLowerCase();
-    cy.nodes().forEach(node => {
-      const label = (node.data("label") || "").toLowerCase();
-      if (label.includes(query)) {
-        node.removeClass("dimmed");
-      } else {
-        node.addClass("dimmed");
-      }
-    });
-  }, [searchQuery, selectedId]);
-
-  // Toolbar handlers
+  // Toolbar handlers — wired to the force-graph 2D camera API.
   const handleZoomIn = useCallback(() => {
-    const cy = cyRef.current;
-    if (cy) cy.zoom(cy.zoom() * 1.2);
+    const fg = fgRef.current;
+    if (fg) fg.zoom(fg.zoom() * 1.2, 200);
   }, []);
-
   const handleZoomOut = useCallback(() => {
-    const cy = cyRef.current;
-    if (cy) cy.zoom(cy.zoom() / 1.2);
+    const fg = fgRef.current;
+    if (fg) fg.zoom(fg.zoom() / 1.2, 200);
   }, []);
-
   const handleFit = useCallback(() => {
-    cyRef.current?.fit(undefined, 40);
+    fgRef.current?.zoomToFit(400, 40);
+  }, []);
+  const handleReset = useCallback(() => {
+    const fg = fgRef.current;
+    if (!fg) return;
+    fg.d3ReheatSimulation();
+    fg.centerAt(0, 0, 400);
+    fg.zoomToFit(600, 40);
   }, []);
 
-  const handleResetLayout = useCallback(() => {
-    cyRef.current
-      ?.layout({
-        name: "fcose",
-        animate: true,
-        animationDuration: 500,
-        randomize: true,
-        ...LAYOUT_BASE,
-      } as FcoseLayoutOptions)
-      .run();
-  }, []);
+  const fgProps: ForceGraphProps2D = {
+    graphData,
+    width: size.width || undefined,
+    height: size.height || undefined,
+    // Transparent so the graph sits on the page background rather than
+    // painting its own backdrop, matching the 3D scene.
+    backgroundColor: "rgba(0,0,0,0)",
+    nodeRelSize: NODE_RADIUS,
+    nodeCanvasObject,
+    nodePointerAreaPaint,
+    nodeLabel,
+    linkColor,
+    linkWidth: 1,
+    linkLabel: (link: LinkObject) =>
+      hideTooltipsRef.current ? "" : String(link.label ?? ""),
+    linkDirectionalArrowLength: 3,
+    linkDirectionalArrowRelPos: 1,
+    onNodeClick: handleNodeClick,
+    onBackgroundClick: handleBackgroundClick,
+    onEngineStop: handleEngineStop,
+    // Freeze the simulation after a fixed number of ticks so the layout
+    // settles to a stable result instead of drifting forever.
+    cooldownTicks: COOLDOWN_TICKS,
+    minZoom: 0.2,
+    maxZoom: 8,
+  };
 
   return (
     <>
-      {/* Toolbar */}
       <GraphToolbar
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         onFit={handleFit}
-        onReset={handleResetLayout}
+        onReset={handleReset}
       />
-
-      {/* Cytoscape container */}
-      <div ref={containerRef} className="h-full w-full" />
-
-      {/* Hover tooltip — interactive (pointer-events-auto so user can hover over it) */}
-      {tooltip && (
-        <NodeTooltip
-          node={tooltip.node}
-          x={tooltip.x}
-          y={tooltip.y}
-          onMouseEnter={() => {
-            tooltipHoveredRef.current = true;
-          }}
-          onMouseLeave={() => {
-            tooltipHoveredRef.current = false;
-            setTooltip(null);
-          }}
-        />
-      )}
+      <div ref={containerRef} className="h-full w-full overflow-hidden">
+        {Graph && size.width > 0 && (
+          <Graph
+            ref={
+              fgRef as React.MutableRefObject<ForceGraphMethods2D | undefined>
+            }
+            {...fgProps}
+          />
+        )}
+      </div>
     </>
   );
 }
@@ -725,27 +724,6 @@ function NetworkGraph2D({
 
 type Graph3DComponent = (typeof import("react-force-graph-3d"))["default"];
 type ThreeModule = typeof import("three");
-
-interface HighlightInfo {
-  keep: Set<string>;
-}
-
-// The 3D engine renders tooltips through the `float-tooltip` library, which
-// wraps the label HTML in a `.float-tooltip-kap` element with its own
-// background, padding, and border. Strip that chrome so our themed card —
-// matching the 2D tooltip — is the only thing the user sees.
-const TOOLTIP_STYLE_ID = "poliglot-network-graph-3d-tooltip";
-const TOOLTIP_STYLE = `.float-tooltip-kap{background:transparent!important;border:0!important;padding:0!important;border-radius:0!important;box-shadow:none!important;font:inherit!important;color:inherit!important;}`;
-
-function useNeutralizeTooltipChrome() {
-  useEffect(() => {
-    if (document.getElementById(TOOLTIP_STYLE_ID)) return;
-    const style = document.createElement("style");
-    style.id = TOOLTIP_STYLE_ID;
-    style.textContent = TOOLTIP_STYLE;
-    document.head.appendChild(style);
-  }, []);
-}
 
 function NetworkGraph3D({
   nodes,
@@ -758,7 +736,7 @@ function NetworkGraph3D({
   hideTooltips,
 }: GraphViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const fgRef = useRef<ForceGraphMethods | undefined>(undefined);
+  const fgRef = useRef<ForceGraphMethods3D | undefined>(undefined);
 
   useNeutralizeTooltipChrome();
 
@@ -783,18 +761,7 @@ function NetworkGraph3D({
   }, []);
   const Graph = api?.Graph ?? null;
 
-  // Track container size — ForceGraph3D needs explicit width/height.
-  const [size, setSize] = useState({ width: 0, height: 0 });
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const update = () =>
-      setSize({ width: el.clientWidth, height: el.clientHeight });
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  const size = useContainerSize(containerRef);
 
   // Stable callback refs
   const onSelectNodeRef = useRef(onSelectNode);
@@ -804,68 +771,8 @@ function NetworkGraph3D({
   const hideTooltipsRef = useRef(hideTooltips);
   hideTooltipsRef.current = hideTooltips;
 
-  // Reuse node objects across renders so force-graph keeps their simulated
-  // positions instead of relaying out the whole scene on every data change.
-  const nodeObjsRef = useRef<Map<string, NodeObject>>(new Map());
-  const graphData = useMemo(() => {
-    const map = nodeObjsRef.current;
-    const nextIds = new Set(nodes.map(n => n.id));
-    for (const id of Array.from(map.keys())) {
-      if (!nextIds.has(id)) map.delete(id);
-    }
-    const fgNodes: NodeObject[] = nodes.map(n => {
-      // Carry the same fill + border colors the 2D nodes and legend swatches
-      // use, so the custom node object can render an identical "pale fill,
-      // colored ring" look.
-      const c = typeColor(n.type, isDark);
-      const label = n.label || n.id;
-      const existing = map.get(n.id);
-      if (existing) {
-        existing.node = n;
-        existing.fill = c.bg;
-        existing.border = c.border;
-        existing.label = label;
-        return existing;
-      }
-      const obj: NodeObject = {
-        id: n.id,
-        label,
-        fill: c.bg,
-        border: c.border,
-        node: n,
-      };
-      map.set(n.id, obj);
-      return obj;
-    });
-    const fgLinks: LinkObject[] = edges.map(e => ({
-      source: e.source,
-      target: e.target,
-      label: e.label ?? "",
-    }));
-    return { nodes: fgNodes, links: fgLinks };
-  }, [nodes, edges, isDark]);
-
-  // Which ids stay highlighted (selection neighborhood or search match).
-  // null means "no dimming".
-  const highlight: HighlightInfo | null = useMemo(() => {
-    if (selectedId) {
-      const keep = new Set<string>([selectedId]);
-      for (const e of edges) {
-        if (e.source === selectedId) keep.add(e.target);
-        if (e.target === selectedId) keep.add(e.source);
-      }
-      return { keep };
-    }
-    const query = searchQuery?.trim().toLowerCase();
-    if (query) {
-      const keep = new Set<string>();
-      for (const n of nodes) {
-        if ((n.label || "").toLowerCase().includes(query)) keep.add(n.id);
-      }
-      return { keep };
-    }
-    return null;
-  }, [selectedId, searchQuery, nodes, edges]);
+  const graphData = useGraphData(nodes, edges, isDark);
+  const highlight = useHighlight(nodes, edges, selectedId, searchQuery);
 
   // Render nodes with unlit (MeshBasic) materials so they show the EXACT
   // palette hex — three.js lighting would otherwise shade the pale fills into
@@ -948,12 +855,8 @@ function NetworkGraph3D({
   const linkColor = useCallback(
     (link: LinkObject) => {
       const muted = isDark ? "rgba(160,160,160,0.4)" : "rgba(115,115,115,0.45)";
-      if (highlight) {
-        const s = endpointId(link.source);
-        const t = endpointId(link.target);
-        if (!highlight.keep.has(s) || !highlight.keep.has(t)) {
-          return isDark ? "rgba(80,80,80,0.12)" : "rgba(200,200,200,0.18)";
-        }
+      if (linkDimmed(link, highlight)) {
+        return isDark ? "rgba(80,80,80,0.12)" : "rgba(200,200,200,0.18)";
       }
       return muted;
     },
@@ -967,62 +870,43 @@ function NetworkGraph3D({
     return renderTooltipHtml(graphNode);
   }, []);
 
-  // Distinguish a single click (select + focus) from a double click (expand).
-  const lastClickRef = useRef<{ id: string; time: number }>({
-    id: "",
-    time: 0,
-  });
-
-  const handleNodeClick = useCallback((node: NodeObject) => {
-    const id = String(node.id);
-    const graphNode = (node.node as GraphNode | undefined) ?? null;
-
-    // Ease the camera toward the clicked node along the current view axis.
-    const fg = fgRef.current;
-    if (
-      fg &&
-      typeof node.x === "number" &&
-      typeof node.y === "number" &&
-      typeof node.z === "number"
-    ) {
-      const distance = 120;
-      const radius = Math.hypot(node.x, node.y, node.z) || 1;
-      const ratio = 1 + distance / radius;
-      fg.cameraPosition(
-        { x: node.x * ratio, y: node.y * ratio, z: node.z * ratio },
-        { x: node.x, y: node.y, z: node.z },
-        700
-      );
-    }
-
-    const now = Date.now();
-    const last = lastClickRef.current;
-    if (last.id === id && now - last.time < 300) {
-      lastClickRef.current = { id: "", time: 0 };
-      onExpandNodeRef.current?.(id);
-    } else {
-      lastClickRef.current = { id, time: now };
-      onSelectNodeRef.current?.(graphNode);
-    }
-  }, []);
+  const dispatchNodeClick = useNodeClickDispatch(
+    onSelectNodeRef,
+    onExpandNodeRef
+  );
+  const handleNodeClick = useCallback(
+    (node: NodeObject) => {
+      // Ease the camera toward the clicked node along the current view axis,
+      // then run the shared select/expand dispatch.
+      const fg = fgRef.current;
+      if (
+        fg &&
+        typeof node.x === "number" &&
+        typeof node.y === "number" &&
+        typeof node.z === "number"
+      ) {
+        const distance = 120;
+        const radius = Math.hypot(node.x, node.y, node.z) || 1;
+        const ratio = 1 + distance / radius;
+        fg.cameraPosition(
+          { x: node.x * ratio, y: node.y * ratio, z: node.z * ratio },
+          { x: node.x, y: node.y, z: node.z },
+          700
+        );
+      }
+      dispatchNodeClick(node);
+    },
+    [dispatchNodeClick]
+  );
 
   const handleBackgroundClick = useCallback(() => {
     onSelectNodeRef.current?.(null);
   }, []);
 
-  // Fit the scene into view once the layout first settles. Reset the latch
-  // when the graph transitions in and out of the empty state.
-  const didFitRef = useRef(false);
-  const isEmpty = nodes.length === 0;
-  useEffect(() => {
-    didFitRef.current = false;
-  }, [isEmpty]);
-  const handleEngineStop = useCallback(() => {
-    if (!didFitRef.current && fgRef.current && nodes.length > 0) {
-      fgRef.current.zoomToFit(400, 60);
-      didFitRef.current = true;
-    }
-  }, [nodes.length]);
+  // Fit the scene into view once the layout first settles (shared latch).
+  const handleEngineStop = useFitOnSettle(nodes.length, () => {
+    fgRef.current?.zoomToFit(400, 60);
+  });
 
   // Toolbar handlers
   const dolly = useCallback((factor: number) => {
@@ -1047,14 +931,14 @@ function NetworkGraph3D({
     fgRef.current?.zoomToFit(600, 60);
   }, []);
 
-  const fgProps: ForceGraphProps = {
+  const fgProps: ForceGraphProps3D = {
     graphData,
     width: size.width || undefined,
     height: size.height || undefined,
     // Transparent so the graph sits on the page background, matching the 2D
-    // (cytoscape) canvas rather than painting its own backdrop.
+    // canvas rather than painting its own backdrop.
     backgroundColor: "rgba(0,0,0,0)",
-    nodeRelSize: 5,
+    nodeRelSize: NODE_RADIUS,
     nodeThreeObject,
     nodeLabel,
     linkColor,
@@ -1067,6 +951,7 @@ function NetworkGraph3D({
     onNodeClick: handleNodeClick,
     onBackgroundClick: handleBackgroundClick,
     onEngineStop: handleEngineStop,
+    cooldownTicks: COOLDOWN_TICKS,
     showNavInfo: false,
   };
 
@@ -1081,7 +966,9 @@ function NetworkGraph3D({
       <div ref={containerRef} className="h-full w-full overflow-hidden">
         {Graph && size.width > 0 && (
           <Graph
-            ref={fgRef as React.MutableRefObject<ForceGraphMethods | undefined>}
+            ref={
+              fgRef as React.MutableRefObject<ForceGraphMethods3D | undefined>
+            }
             {...fgProps}
           />
         )}
@@ -1142,59 +1029,6 @@ function buildLabelSprite(
   return sprite;
 }
 
-/** Resolve a link endpoint (string id or resolved node object) to its id. */
-function endpointId(endpoint: LinkObject["source"]): string {
-  if (endpoint && typeof endpoint === "object") return String(endpoint.id);
-  return String(endpoint);
-}
-
-/**
- * Build the hover-tooltip HTML for a node in the 3D view. Mirrors the
- * 2D `NodeTooltip` card — same theme variables, layout, and typography —
- * so the two modes show a consistent tooltip. (The 3D engine injects raw
- * HTML for tooltips, so this is the string form of that card.)
- */
-function renderTooltipHtml(node: GraphNode): string {
-  const muted = "var(--muted-foreground,#737373)";
-  const entries = node.properties ? Object.entries(node.properties) : [];
-  const visible = entries.slice(0, 8);
-  const remaining = entries.length - visible.length;
-
-  const rows = visible
-    .map(
-      ([key, value]) =>
-        `<div style="display:flex;align-items:baseline;gap:8px;font-size:11px;line-height:1.25">` +
-        `<span style="flex-shrink:0;color:${muted}">${escapeHtml(key)}</span>` +
-        `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--foreground,#1a1a1a)">${escapeHtml(value)}</span>` +
-        `</div>`
-    )
-    .join("");
-  const more =
-    remaining > 0
-      ? `<div style="margin-top:2px;font-size:10px;color:${muted}">+${remaining} more</div>`
-      : "";
-  const type = node.type
-    ? `<div style="margin-top:2px;font-size:10px;font-family:ui-monospace,monospace;color:${muted}">${escapeHtml(node.type)}</div>`
-    : "";
-  const props =
-    visible.length > 0
-      ? `<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border,#e5e5e5);` +
-        `display:flex;flex-direction:column;gap:4px">${rows}${more}</div>`
-      : "";
-
-  return (
-    `<div style="width:240px;padding:10px 12px;border-radius:8px;` +
-    `border:1px solid var(--border,#e5e5e5);background:var(--popover,#fff);` +
-    `color:var(--popover-foreground,#1a1a1a);` +
-    `box-shadow:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -4px rgba(0,0,0,0.1);` +
-    `font-family:inherit">` +
-    `<div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(node.label)}</div>` +
-    `${type}` +
-    `${props}` +
-    `</div>`
-  );
-}
-
 // --- Type legend ---
 
 function TypeLegend({ types, isDark }: { types: string[]; isDark: boolean }) {
@@ -1217,105 +1051,6 @@ function TypeLegend({ types, isDark }: { types: string[]; isDark: boolean }) {
           </div>
         );
       })}
-    </div>
-  );
-}
-
-// --- Tooltip (2D) ---
-
-interface NodeTooltipProps extends TooltipState {
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-}
-
-function NodeTooltip({
-  node,
-  x,
-  y,
-  onMouseEnter,
-  onMouseLeave,
-}: NodeTooltipProps) {
-  const entries = node.properties ? Object.entries(node.properties) : [];
-  const visible = entries.slice(0, 8);
-  const remaining = entries.length - visible.length;
-
-  // y is already the top of the node's bounding box — just add gap for the arrow
-  const tooltipTop = y - 8;
-
-  return (
-    <div
-      className="absolute z-20 w-[260px]"
-      style={{
-        left: x,
-        top: tooltipTop,
-        transform: "translate(-50%, -100%)",
-      }}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      {/* Card */}
-      <div className="rounded-lg border border-[var(--border,#e5e5e5)] bg-[var(--popover,#fff)] text-[var(--popover-foreground,#1a1a1a)] shadow-lg overflow-hidden">
-        {/* Header */}
-        <div className="px-3 pt-2.5 pb-1.5">
-          <p className="text-[13px] font-semibold truncate">{node.label}</p>
-          {node.type && (
-            <p className="text-[10px] text-[var(--muted-foreground,#737373)] font-mono mt-0.5">
-              {node.type}
-            </p>
-          )}
-        </div>
-
-        {/* Properties */}
-        {visible.length > 0 && (
-          <div className="px-3 pb-2.5 pt-1 border-t border-[var(--border,#e5e5e5)]">
-            <div className="space-y-1 mt-1.5">
-              {visible.map(([key, value]) => (
-                <div
-                  key={key}
-                  className="flex items-baseline gap-2 text-[11px] leading-tight"
-                >
-                  <span className="shrink-0 text-[var(--muted-foreground,#737373)]">
-                    {key}
-                  </span>
-                  <span className="truncate text-[var(--foreground,#1a1a1a)]">
-                    {value}
-                  </span>
-                </div>
-              ))}
-              {remaining > 0 && (
-                <p className="text-[10px] text-[var(--muted-foreground,#737373)] pt-0.5">
-                  +{remaining} more
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Arrow pointing down to the node */}
-      <div className="relative flex justify-center -mt-px">
-        {/* Border arrow */}
-        <div
-          className="absolute size-0"
-          style={{
-            borderLeft: "7px solid transparent",
-            borderRight: "7px solid transparent",
-            borderTop: "7px solid var(--border, #e5e5e5)",
-          }}
-        />
-        {/* Fill arrow (overlaps border arrow to create bordered effect) */}
-        <div
-          className="absolute size-0"
-          style={{
-            top: -1,
-            borderLeft: "6px solid transparent",
-            borderRight: "6px solid transparent",
-            borderTop: "6px solid var(--popover, #fff)",
-          }}
-        />
-      </div>
-      {/* Spacer for the arrow height so hover area extends to the node */}
-      <div style={{ height: 8 }} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "package": "@poliglot-io/uikit",
-  "version": "0.1.0-beta.9",
+  "version": "0.1.0-beta.10",
   "components": [
     {
       "file": "src/components/accordion.tsx",
@@ -11417,7 +11417,7 @@
     },
     {
       "file": "src/components/network-graph.tsx",
-      "jsdoc": "Network graph visualization with 2D and 3D rendering.\n\nPass nodes and edges as data; interaction handlers cover\nselection, hover, and expand. The graph can be explored in a\n2D force-directed layout (cytoscape, fcose) or navigated in a\n3D force-directed scene (react-force-graph-3d / three). Users\ntoggle between the two with the control in the top-right; the\ndefault mode is configurable. Used in matrix-author for\ndependency and relationship views.",
+      "jsdoc": "Network graph visualization with 2D and 3D rendering.\n\nPass nodes and edges as data; interaction handlers cover\nselection, hover, and expand. The graph can be explored in a\n2D force-directed layout (HTML canvas) or navigated in a 3D\nforce-directed scene (WebGL). Both modes run the same physics\nengine; users toggle between them with the control in the\ntop-right, and the default mode is configurable.",
       "components": [
         {
           "name": "NetworkGraph",
