@@ -576,6 +576,10 @@ function NetworkGraph2D({
   const dimBorder = isDark ? "#525252" : "#a3a3a3";
   const labelColor = isDark ? "#e5e5e5" : "#1a1a1a";
   const dimLabelColor = isDark ? "#737373" : "#a3a3a3";
+  // Relationship-label color (muted) + the page background used as a legibility
+  // halo so labels stay readable where they cross a link line.
+  const linkLabelColor = isDark ? "#a3a3a3" : "#737373";
+  const pageBg = isDark ? "#0a0a0a" : "#fafafa";
 
   // Draw each node as a pale filled disc with a colored ring and a label
   // below it — the 2D counterpart of the 3D `nodeThreeObject`.
@@ -634,6 +638,40 @@ function NetworkGraph2D({
     [highlight, isDark]
   );
 
+  // Always-on relationship label, drawn at each link's midpoint (a little
+  // smaller than node labels), matching the original graph's edge labels.
+  const linkCanvasObject = useCallback(
+    (link: LinkObject, ctx: CanvasRenderingContext2D, globalScale: number) => {
+      const label = String(link.label ?? "");
+      if (!label) return;
+      const start = link.source as NodeObject | undefined;
+      const end = link.target as NodeObject | undefined;
+      if (!start || !end || typeof start !== "object" || typeof end !== "object")
+        return;
+      const sx = start.x;
+      const sy = start.y;
+      const ex = end.x;
+      const ey = end.y;
+      if (sx == null || sy == null || ex == null || ey == null) return;
+      const x = (sx + ex) / 2;
+      const y = (sy + ey) / 2;
+
+      const fontSize = Math.max(7 / globalScale, 2);
+      ctx.font = `${fontSize}px ui-sans-serif, system-ui, -apple-system, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.globalAlpha = linkDimmed(link, highlight) ? 0.3 : 1;
+      // Halo so the text reads over the link line.
+      ctx.lineWidth = fontSize * 0.5;
+      ctx.strokeStyle = pageBg;
+      ctx.strokeText(label, x, y);
+      ctx.fillStyle = linkLabelColor;
+      ctx.fillText(label, x, y);
+      ctx.globalAlpha = 1;
+    },
+    [highlight, linkLabelColor, pageBg]
+  );
+
   const nodeLabel = useCallback((node: NodeObject) => {
     if (hideTooltipsRef.current) return "";
     const graphNode = node.node as GraphNode | undefined;
@@ -684,8 +722,9 @@ function NetworkGraph2D({
     nodeLabel,
     linkColor,
     linkWidth: 1,
-    linkLabel: (link: LinkObject) =>
-      hideTooltipsRef.current ? "" : String(link.label ?? ""),
+    // Draw the default link line first, then the always-on label on top.
+    linkCanvasObjectMode: () => "after" as const,
+    linkCanvasObject,
     linkDirectionalArrowLength: 3,
     linkDirectionalArrowRelPos: 1,
     onNodeClick: handleNodeClick,
@@ -863,6 +902,49 @@ function NetworkGraph3D({
     [highlight, isDark]
   );
 
+  // Always-on relationship label as a small text sprite at the link midpoint —
+  // the 3D counterpart of the 2D linkCanvasObject (smaller than node labels).
+  const linkLabelColor = isDark ? "#a3a3a3" : "#737373";
+  const linkThreeObject = useCallback(
+    (link: LinkObject) => {
+      // Only invoked once the graph (and thus `api`) is loaded.
+      const three = api!.three;
+      const label = String(link.label ?? "");
+      if (!label) return new three.Object3D();
+      const opacity = linkDimmed(link, highlight) ? 0.3 : 0.9;
+      return buildLabelSprite(
+        three,
+        label,
+        linkLabelColor,
+        opacity,
+        labelMatCacheRef.current,
+        2.5
+      );
+    },
+    [api, highlight, linkLabelColor]
+  );
+  const linkPositionUpdate = useCallback(
+    (
+      obj: unknown,
+      {
+        start,
+        end,
+      }: {
+        start: { x: number; y: number; z: number };
+        end: { x: number; y: number; z: number };
+      }
+    ) => {
+      const sprite = obj as InstanceType<ThreeModule["Sprite"]>;
+      sprite.position.set(
+        start.x + (end.x - start.x) / 2,
+        start.y + (end.y - start.y) / 2,
+        start.z + (end.z - start.z) / 2
+      );
+      return false;
+    },
+    []
+  );
+
   const nodeLabel = useCallback((node: NodeObject) => {
     if (hideTooltipsRef.current) return "";
     const graphNode = node.node as GraphNode | undefined;
@@ -944,8 +1026,10 @@ function NetworkGraph3D({
     linkColor,
     linkWidth: 0.5,
     linkOpacity: isDark ? 0.5 : 0.6,
-    linkLabel: (link: LinkObject) =>
-      hideTooltipsRef.current ? "" : String(link.label ?? ""),
+    // Always-on relationship label sprite, centered on each link.
+    linkThreeObjectExtend: true,
+    linkThreeObject,
+    linkPositionUpdate,
     linkDirectionalArrowLength: 3,
     linkDirectionalArrowRelPos: 1,
     onNodeClick: handleNodeClick,
@@ -987,7 +1071,8 @@ function buildLabelSprite(
   text: string,
   color: string,
   opacity: number,
-  cache: Map<string, InstanceType<ThreeModule["SpriteMaterial"]>>
+  cache: Map<string, InstanceType<ThreeModule["SpriteMaterial"]>>,
+  height = 4
 ): InstanceType<ThreeModule["Sprite"]> {
   const key = `${text}|${color}|${opacity}`;
   let material = cache.get(key);
@@ -1022,7 +1107,6 @@ function buildLabelSprite(
   }
 
   const sprite = new three.Sprite(material);
-  const height = 4;
   const aspect = (material.userData.aspect as number) ?? 4;
   sprite.scale.set(height * aspect, height, 1);
   sprite.position.set(0, -10, 0);
