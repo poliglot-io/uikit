@@ -50,17 +50,45 @@ export default function PersonCard({ name, email }: Props) {
 }
 `;
 
+const PERSON_CARD_STORY_TSX = `import type { Meta, StoryObj } from "@storybook/react";
+import PersonCard from "./PersonCard";
+
+const meta = {
+  title: "Components/PersonCard",
+  component: PersonCard,
+  tags: ["autodocs"],
+} satisfies Meta<typeof PersonCard>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+// Supply your own props — preview them however you like.
+export const Default: Story = {
+  args: { name: "Ada Lovelace", email: "ada@example.com" },
+};
+`;
+
 function generatePackageJson(name: string, version: string): string {
   return JSON.stringify(
     {
       name,
       version: "0.1.0",
       type: "module",
+      scripts: {
+        // Zero-config: launches Storybook with the kit's bundled preview.
+        preview: "poliglot-ui preview",
+      },
       dependencies: {
         "@poliglot-io/uikit": `^${version}`,
       },
       devDependencies: {
+        "@storybook/addon-essentials": "^8.6.0",
+        "@storybook/addon-themes": "^8.6.0",
+        "@storybook/react-vite": "^8.6.0",
+        "@tailwindcss/vite": "^4",
         "@types/react": "^19.0.0",
+        storybook: "^8.6.0",
+        tailwindcss: "^4",
         typescript: "^5.0.0",
       },
     },
@@ -140,6 +168,12 @@ export async function init(
   if (!existsSync(personCardPath)) {
     writeFileSync(personCardPath, PERSON_CARD_TSX);
     console.log(`✓ Created ${componentsDir}/PersonCard.tsx`);
+  }
+
+  const personCardStoryPath = join(componentsPath, "PersonCard.stories.tsx");
+  if (!existsSync(personCardStoryPath)) {
+    writeFileSync(personCardStoryPath, PERSON_CARD_STORY_TSX);
+    console.log(`✓ Created ${componentsDir}/PersonCard.stories.tsx`);
   }
 
   // Create ui.ttl

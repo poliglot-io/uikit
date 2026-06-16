@@ -1,0 +1,15 @@
+/*
+ * Storybook theme entry for this kit's own Storybook.
+ *
+ * Pulls in Tailwind, scans the kit's source for classes, and layers on the
+ * shared token set. The consumer preview (poliglot-ui preview) uses the same
+ * tokens via a generated entry that points `@source` at the author's project.
+ */
+
+@import "tailwindcss";
+
+/* Scan the kit's source and stories so every class used in a preview is
+ * generated. Paths are relative to this file. */
+@source "../src/**/*.{ts,tsx}";
+
+@import "../src/storybook/tokens.css";

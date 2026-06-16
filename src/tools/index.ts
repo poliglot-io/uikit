@@ -15,9 +15,4 @@ export {
 export { generateStubs, generateAndWriteStubs } from "./stub-generator.js";
 export { init } from "./init.js";
 export { run } from "./cli.js";
-export {
-  startPreviewServer,
-  type PreviewVariant,
-  type ComponentPreview,
-  type PreviewRegistry,
-} from "./preview/index.js";
+export { startPreview, type PreviewOptions } from "./preview.js";

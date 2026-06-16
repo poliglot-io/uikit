@@ -84,16 +84,17 @@ program
 
 program
   .command("preview")
-  .description("Start dev server to preview components")
+  .description("Launch Storybook to preview components")
   .option("-d, --dir <path>", "Project directory", process.cwd())
-  .option("-p, --port <number>", "Server port", "3333")
-  .option("--host <host>", "Server host", "localhost")
+  .option(
+    "-p, --port <number>",
+    "Port (defaults to the first open port in the Storybook range)"
+  )
   .action(async options => {
     try {
-      const { startPreviewServer } = await import("./preview/index.js");
-      await startPreviewServer(options.dir, {
-        port: parseInt(options.port, 10),
-        host: options.host,
+      const { startPreview } = await import("./preview.js");
+      await startPreview(options.dir, {
+        port: options.port ? parseInt(options.port, 10) : undefined,
       });
     } catch (err) {
       console.error(
