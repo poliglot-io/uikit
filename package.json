@@ -1,6 +1,6 @@
 {
   "name": "@poliglot-io/uikit",
-  "version": "0.1.0-beta.8",
+  "version": "0.1.0-beta.9",
   "description": "UI components and build tooling for Poliglot matrix development",
   "type": "module",
   "main": "dist/index.js",
@@ -24,6 +24,10 @@
     "./tools": {
       "types": "./dist/tools/index.d.ts",
       "default": "./dist/tools/index.js"
+    },
+    "./storybook": {
+      "types": "./dist/storybook/index.d.ts",
+      "default": "./dist/storybook/index.js"
     },
     "./components/accordion": {
       "types": "./dist/components/accordion.d.ts",
@@ -237,9 +241,8 @@
   "author": "Poliglot Inc.",
   "homepage": "https://github.com/poliglot-io/uikit",
   "scripts": {
-    "build": "npm run build:css && tsc && npm run build:preview-app",
+    "build": "npm run build:css && tsc",
     "build:css": "node scripts/build-css.js",
-    "build:preview-app": "node scripts/copy-preview-app.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "lint": "eslint .",
@@ -249,6 +252,8 @@
     "test:coverage": "vitest run --coverage",
     "surface:gen": "tsx scripts/gen-component-surface.ts",
     "surface:check": "tsx scripts/gen-component-surface.ts --check",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -319,6 +324,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@storybook/addon-essentials": "^8.6.0",
+    "@storybook/addon-themes": "^8.6.0",
+    "@storybook/react-vite": "^8.6.0",
     "@tailwindcss/cli": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.0.0",
@@ -332,6 +340,7 @@
     "eslint": "^9.0.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.0",
+    "eslint-plugin-storybook": "^0.11.0",
     "glob": "^11.0.0",
     "husky": "^9.1.7",
     "jsdom": "^26.0.0",
@@ -340,6 +349,7 @@
     "react": "^19.0.0",
     "react-docgen-typescript": "^2.4.0",
     "react-dom": "^19.0.0",
+    "storybook": "^8.6.0",
     "tailwindcss": "^4.3.0",
     "tsx": "^4.0.0",
     "typescript-eslint": "^8.0.0",

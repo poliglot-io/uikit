@@ -280,6 +280,8 @@ function main(): number {
   const files = readdirSync(COMPONENTS_DIR)
     .filter((f) => f.endsWith(".tsx") || f.endsWith(".ts"))
     .filter((f) => !f.startsWith("index") && !f.startsWith("__"))
+    .filter((f) => !f.endsWith(".stories.tsx") && !f.endsWith(".stories.ts"))
+    .filter((f) => !f.endsWith(".test.tsx") && !f.endsWith(".test.ts"))
     .sort();
 
   const components: SerializedFile[] = [];
