@@ -1,24 +1,10 @@
 import type { Preview } from "@storybook/react";
-import { withThemeByClassName } from "@storybook/addon-themes";
+import { themeDecorator, baseParameters } from "../src/storybook/preview-config";
 import "./theme.css";
 
 const preview: Preview = {
-  parameters: {
-    layout: "centered",
-    controls: {
-      matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/i,
-      },
-    },
-    backgrounds: { disable: true },
-  },
-  decorators: [
-    withThemeByClassName({
-      themes: { light: "", dark: "dark" },
-      defaultTheme: "light",
-    }),
-  ],
+  parameters: baseParameters,
+  decorators: [themeDecorator],
 };
 
 export default preview;

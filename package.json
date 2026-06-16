@@ -29,6 +29,14 @@
       "types": "./dist/storybook/index.d.ts",
       "default": "./dist/storybook/index.js"
     },
+    "./storybook/preset": {
+      "types": "./dist/storybook/preset.d.ts",
+      "default": "./dist/storybook/preset.js"
+    },
+    "./storybook/tokens.css": {
+      "style": "./dist/storybook/tokens.css",
+      "default": "./dist/storybook/tokens.css"
+    },
     "./components/accordion": {
       "types": "./dist/components/accordion.d.ts",
       "default": "./dist/components/accordion.js"
@@ -241,7 +249,7 @@
   "author": "Poliglot Inc.",
   "homepage": "https://github.com/poliglot-io/uikit",
   "scripts": {
-    "build": "npm run build:css && tsc",
+    "build": "npm run build:css && tsc && cp src/storybook/tokens.css dist/storybook/tokens.css",
     "build:css": "node scripts/build-css.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",

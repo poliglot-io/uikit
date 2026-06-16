@@ -1,18 +1,5 @@
-import type { StorybookConfig } from "@storybook/react-vite";
-import tailwindcss from "@tailwindcss/vite";
+// Storybook evaluates this file with Node's native loader, so the relative
+// import needs an explicit extension.
+import { defineMain } from "../src/storybook/preset.ts";
 
-const config: StorybookConfig = {
-  stories: ["../src/**/*.stories.@(ts|tsx|mdx)"],
-  addons: ["@storybook/addon-essentials", "@storybook/addon-themes"],
-  framework: {
-    name: "@storybook/react-vite",
-    options: {},
-  },
-  viteFinal: async config => {
-    config.plugins = config.plugins ?? [];
-    config.plugins.push(tailwindcss());
-    return config;
-  },
-};
-
-export default config;
+export default defineMain(["../src/**/*.stories.@(ts|tsx|mdx)"]);

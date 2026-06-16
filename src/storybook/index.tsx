@@ -21,3 +21,9 @@ export {
   type MockTriggerOptions,
   type MockTriggerProviderProps,
 } from "./trigger-mock";
+
+// NOTE: `defineMain` is intentionally NOT re-exported here. It pulls in the
+// server-only `@tailwindcss/vite` plugin; this barrel is imported by the
+// browser-side preview, so it must stay browser-safe. Import `defineMain` from
+// the dedicated `@poliglot-io/uikit/storybook/preset` subpath (Node side only).
+export { themeDecorator, baseParameters } from "./preview-config";
