@@ -208,6 +208,14 @@ interface HighlightInfo {
 /** Number of physics ticks each view simulates before freezing the layout. */
 const COOLDOWN_TICKS = 100;
 
+/**
+ * Layout spread. The d3-force defaults pack nodes tightly; stronger charge
+ * repulsion and a longer link distance give the graph more room so it reads
+ * closer to the original layout. Applied to both 2D and 3D.
+ */
+const CHARGE_STRENGTH = -240;
+const LINK_DISTANCE = 70;
+
 // --- Shared graph helpers ---
 
 /**
@@ -709,6 +717,20 @@ function NetworkGraph2D({
     fg.zoomToFit(600, 40);
   }, []);
 
+  // Spread the layout out: configure the forces once the graph is mounted,
+  // then reheat so they take effect. `ready` flips once (not on every resize).
+  const ready = !!Graph && size.width > 0;
+  useEffect(() => {
+    const fg = fgRef.current;
+    if (!fg) return;
+    // Configure forces on the live simulation; the in-flight initial layout
+    // (cooldownTicks) picks up the new strength/distance on its next ticks.
+    // Do NOT reheat here — restarting the loop can race the layout setup and
+    // crash the tick (`layout.tick` on undefined), which blanks the 3D view.
+    fg.d3Force("charge")?.strength(CHARGE_STRENGTH);
+    fg.d3Force("link")?.distance(LINK_DISTANCE);
+  }, [ready, graphData]);
+
   const fgProps: ForceGraphProps2D = {
     graphData,
     width: size.width || undefined,
@@ -1013,13 +1035,29 @@ function NetworkGraph3D({
     fgRef.current?.zoomToFit(600, 60);
   }, []);
 
+  // Spread the layout out: configure the forces once the graph is mounted,
+  // then reheat so they take effect. `ready` flips once (not on every resize).
+  const ready = !!Graph && size.width > 0;
+  useEffect(() => {
+    const fg = fgRef.current;
+    if (!fg) return;
+    // Configure forces on the live simulation; the in-flight initial layout
+    // (cooldownTicks) picks up the new strength/distance on its next ticks.
+    // Do NOT reheat here — restarting the loop can race the layout setup and
+    // crash the tick (`layout.tick` on undefined), which blanks the 3D view.
+    fg.d3Force("charge")?.strength(CHARGE_STRENGTH);
+    fg.d3Force("link")?.distance(LINK_DISTANCE);
+  }, [ready, graphData]);
+
   const fgProps: ForceGraphProps3D = {
     graphData,
     width: size.width || undefined,
     height: size.height || undefined,
     // Transparent so the graph sits on the page background, matching the 2D
-    // canvas rather than painting its own backdrop.
+    // canvas rather than painting its own backdrop. `alpha` must be enabled on
+    // the WebGL renderer itself, or it clears to opaque black (a black screen).
     backgroundColor: "rgba(0,0,0,0)",
+    rendererConfig: { alpha: true, antialias: true },
     nodeRelSize: NODE_RADIUS,
     nodeThreeObject,
     nodeLabel,
