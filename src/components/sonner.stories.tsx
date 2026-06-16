@@ -4,7 +4,7 @@ import { Toaster } from "./sonner";
 import { Button } from "./button";
 
 const meta = {
-  title: "Components/Sonner",
+  title: "UI Kit/Sonner",
   component: Toaster,
   tags: ["autodocs"],
 } satisfies Meta<typeof Toaster>;

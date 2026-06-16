@@ -4,7 +4,7 @@ import { Label } from "./label";
 import { Input } from "./input";
 
 const meta = {
-  title: "Components/Label",
+  title: "UI Kit/Label",
   component: Label,
   tags: ["autodocs"],
   args: { children: "Label" },

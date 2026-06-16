@@ -20,7 +20,7 @@ import {
 import { Button } from "./button";
 
 const meta = {
-  title: "Components/DropdownMenu",
+  title: "UI Kit/DropdownMenu",
   component: DropdownMenu,
   tags: ["autodocs"],
 } satisfies Meta<typeof DropdownMenu>;

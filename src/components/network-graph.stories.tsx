@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { NetworkGraph } from "./network-graph";
 
 const meta = {
-  title: "Components/NetworkGraph",
+  title: "UI Kit/NetworkGraph",
   component: NetworkGraph,
   tags: ["autodocs"],
   // The graph fills its container, so give it the full canvas rather than the

@@ -8,7 +8,7 @@ import {
 import { Button } from "./button";
 
 const meta = {
-  title: "Components/Collapsible",
+  title: "UI Kit/Collapsible",
   component: Collapsible,
   tags: ["autodocs"],
 } satisfies Meta<typeof Collapsible>;

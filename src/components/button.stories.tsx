@@ -4,7 +4,7 @@ import { handleSPARQL } from "./trigger";
 import { withMockTrigger } from "../storybook/trigger-mock";
 
 const meta = {
-  title: "Components/Button",
+  title: "UI Kit/Button",
   component: Button,
   tags: ["autodocs"],
   args: { children: "Button" },

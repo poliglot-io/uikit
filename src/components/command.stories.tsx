@@ -12,7 +12,7 @@ import {
 } from "./command";
 
 const meta = {
-  title: "Components/Command",
+  title: "UI Kit/Command",
   component: Command,
   tags: ["autodocs"],
 } satisfies Meta<typeof Command>;

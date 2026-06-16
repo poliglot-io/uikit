@@ -4,7 +4,7 @@ import { Empty } from "./empty";
 import { Button } from "./button";
 
 const meta = {
-  title: "Components/Empty",
+  title: "UI Kit/Empty",
   component: Empty,
   tags: ["autodocs"],
   args: {

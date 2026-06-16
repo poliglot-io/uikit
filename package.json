@@ -249,7 +249,8 @@
   "author": "Poliglot Inc.",
   "homepage": "https://github.com/poliglot-io/uikit",
   "scripts": {
-    "build": "npm run build:css && tsc && cp src/storybook/tokens.css dist/storybook/tokens.css",
+    "build": "npm run build:css && tsc && npm run build:stories && cp src/storybook/tokens.css dist/storybook/tokens.css",
+    "build:stories": "tsc -p tsconfig.stories.json --noCheck",
     "build:css": "node scripts/build-css.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",

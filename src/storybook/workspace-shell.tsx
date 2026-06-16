@@ -176,18 +176,34 @@ export function WorkspaceShell({
   );
 }
 
+export interface WithWorkspaceShellOptions extends ShellRegions {
+  /**
+   * Stories whose title starts with this prefix render WITHOUT the shell — used
+   * to keep the kit's own component catalog (primitives) out of the frame while
+   * still framing a consumer's views. Set to `""` to frame everything.
+   */
+  skipTitlePrefix?: string;
+}
+
 /**
- * Storybook decorator that frames a story inside the workspace shell
- * skeleton. Pass region options to hide parts of the chrome:
+ * Storybook decorator that frames a story inside the workspace shell skeleton.
+ * Pass region options to hide parts of the chrome:
  *
  *   export default {
  *     decorators: [withWorkspaceShell({ commandPanel: false })],
  *   };
  */
-export function withWorkspaceShell(options: ShellRegions = {}) {
-  function WorkspaceShellDecorator(Story: React.ComponentType) {
+export function withWorkspaceShell(options: WithWorkspaceShellOptions = {}) {
+  const { skipTitlePrefix = "UI Kit/", ...regions } = options;
+  function WorkspaceShellDecorator(
+    Story: React.ComponentType,
+    context?: { title?: string }
+  ) {
+    if (skipTitlePrefix && context?.title?.startsWith(skipTitlePrefix)) {
+      return <Story />;
+    }
     return (
-      <WorkspaceShell {...options}>
+      <WorkspaceShell {...regions}>
         <Story />
       </WorkspaceShell>
     );

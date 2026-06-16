@@ -10,7 +10,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 
 const meta = {
-  title: "Components/ToggleGroup",
+  title: "UI Kit/ToggleGroup",
   component: ToggleGroup,
   tags: ["autodocs"],
 } satisfies Meta<typeof ToggleGroup>;

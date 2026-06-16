@@ -9,7 +9,7 @@ import {
 } from "./navigation-menu";
 
 const meta = {
-  title: "Components/NavigationMenu",
+  title: "UI Kit/NavigationMenu",
   component: NavigationMenu,
   tags: ["autodocs"],
 } satisfies Meta<typeof NavigationMenu>;

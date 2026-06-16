@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Mermaid } from "./mermaid";
 
 const meta = {
-  title: "Components/Mermaid",
+  title: "UI Kit/Mermaid",
   component: Mermaid,
   tags: ["autodocs"],
 } satisfies Meta<typeof Mermaid>;

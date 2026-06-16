@@ -17,7 +17,7 @@ import {
 } from "./sidebar";
 
 const meta = {
-  title: "Components/Sidebar",
+  title: "UI Kit/Sidebar",
   component: Sidebar,
   tags: ["autodocs"],
 } satisfies Meta<typeof Sidebar>;

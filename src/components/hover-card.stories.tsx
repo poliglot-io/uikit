@@ -4,7 +4,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "./hover-card";
 import { Button } from "./button";
 
 const meta = {
-  title: "Components/HoverCard",
+  title: "UI Kit/HoverCard",
   component: HoverCard,
   tags: ["autodocs"],
 } satisfies Meta<typeof HoverCard>;

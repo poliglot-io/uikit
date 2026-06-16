@@ -110,10 +110,15 @@ function generateConfig(projectDir: string): string {
   // `main` is evaluated by Node, so it imports the dependency-light preset
   // subpath (no relative imports → valid native ESM). `preview` is bundled by
   // the builder, so it can import the full preset.
+  // The project's own stories, plus the kit's shipped component catalog (shown
+  // under the "UI Kit" group; the shell decorator renders those plainly).
   writeFileSync(
     join(cacheDir, "main.mjs"),
     `import { defineMain } from "@poliglot-io/uikit/storybook/preset";\n` +
-      `export default defineMain(["${project}/**/*.stories.@(ts|tsx|mdx)"]);\n`
+      `export default defineMain([\n` +
+      `  "${project}/**/*.stories.@(ts|tsx|mdx)",\n` +
+      `  "${uikitDist}/components/**/*.stories.js",\n` +
+      `]);\n`
   );
 
   writeFileSync(

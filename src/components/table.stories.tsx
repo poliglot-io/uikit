@@ -11,7 +11,7 @@ import {
 } from "./table";
 
 const meta = {
-  title: "Components/Table",
+  title: "UI Kit/Table",
   component: Table,
   tags: ["autodocs"],
 } satisfies Meta<typeof Table>;

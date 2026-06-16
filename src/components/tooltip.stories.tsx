@@ -9,7 +9,7 @@ import {
 import { Button } from "./button";
 
 const meta = {
-  title: "Components/Tooltip",
+  title: "UI Kit/Tooltip",
   component: Tooltip,
   tags: ["autodocs"],
   decorators: [

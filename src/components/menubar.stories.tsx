@@ -17,7 +17,7 @@ import {
 } from "./menubar";
 
 const meta = {
-  title: "Components/Menubar",
+  title: "UI Kit/Menubar",
   component: Menubar,
   tags: ["autodocs"],
 } satisfies Meta<typeof Menubar>;

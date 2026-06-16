@@ -13,7 +13,7 @@ import {
 import { Button } from "./button";
 
 const meta = {
-  title: "Components/Drawer",
+  title: "UI Kit/Drawer",
   component: Drawer,
   tags: ["autodocs"],
 } satisfies Meta<typeof Drawer>;

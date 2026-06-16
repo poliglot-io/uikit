@@ -13,7 +13,7 @@ import { Input } from "./input";
 import { Button } from "./button";
 
 const meta = {
-  title: "Components/Form",
+  title: "UI Kit/Form",
   component: Form,
   tags: ["autodocs"],
 } satisfies Meta<typeof Form>;

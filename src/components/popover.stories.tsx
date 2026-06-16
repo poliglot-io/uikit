@@ -6,7 +6,7 @@ import { Input } from "./input";
 import { Label } from "./label";
 
 const meta = {
-  title: "Components/Popover",
+  title: "UI Kit/Popover",
   component: Popover,
   tags: ["autodocs"],
 } satisfies Meta<typeof Popover>;
