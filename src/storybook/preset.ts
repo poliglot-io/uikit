@@ -19,7 +19,9 @@ export function defineMain(
 ): StorybookConfig {
   return {
     stories,
-    addons: ["@storybook/addon-essentials", "@storybook/addon-themes"],
+    // addon-essentials was dissolved into core in Storybook 9; its features
+    // (controls, actions, viewport, backgrounds, toolbars) ship built in.
+    addons: ["@storybook/addon-themes"],
     framework: { name: "@storybook/react-vite", options: {} },
     viteFinal: async config => {
       config.plugins = config.plugins ?? [];

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { withMockQuery } from "./query-mock";
 import { RscPreview } from "./rsc-preview";
 

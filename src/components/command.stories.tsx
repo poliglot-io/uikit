@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Calendar as CalendarIcon, Search, Settings, User } from "lucide-react";
 import {
   Command,

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button } from "./button";
 import { handleSPARQL } from "./trigger";
 import { withMockTrigger } from "../storybook/trigger-mock";

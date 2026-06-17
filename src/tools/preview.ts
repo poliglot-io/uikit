@@ -159,7 +159,7 @@ export async function startPreview(
       "Storybook is not installed in this project.\n" +
         "Add it as a dev dependency:\n" +
         "  npm install -D storybook @storybook/react-vite " +
-        "@storybook/addon-essentials @storybook/addon-themes " +
+        "@storybook/addon-themes " +
         "@tailwindcss/vite tailwindcss"
     );
   }
