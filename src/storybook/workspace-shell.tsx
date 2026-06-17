@@ -34,8 +34,10 @@ export interface WorkspaceShellProps extends ShellRegions {
   /** The previewed view, rendered into the main surface. */
   children: React.ReactNode;
   /**
-   * Height of the framed shell. Defaults to a tall window; pass `"full"`
-   * to fill the available height (use with the fullscreen layout).
+   * Shell height. Defaults to `"full"`: the shell fills the entire viewport
+   * edge-to-edge (the real app's layout, not a framed window) and tracks the
+   * selected device viewport. Pass a pixel number to render a framed, bordered
+   * box instead — used for small catalog demos.
    */
   height?: number | "full";
   className?: string;
@@ -98,13 +100,19 @@ export function WorkspaceShell({
   header = true,
   tabs = true,
   commandPanel = true,
-  height = 720,
+  height = "full",
   className = "",
 }: WorkspaceShellProps) {
+  // Full-bleed: the shell *is* the page — fills the viewport edge-to-edge with
+  // no window chrome, so it tracks the selected device viewport. Numeric height
+  // renders the older framed, bordered box for small catalog demos.
+  const fullBleed = height === "full";
   return (
     <div
-      className={`relative flex w-full flex-col overflow-hidden rounded-lg border border-border bg-background text-foreground ${className}`}
-      style={height === "full" ? { height: "100%" } : { height }}
+      className={`relative flex w-full flex-col overflow-hidden bg-background text-foreground ${
+        fullBleed ? "h-dvh" : "rounded-lg border border-border"
+      } ${className}`}
+      style={fullBleed ? undefined : { height }}
     >
       {/* Top bar */}
       {header && (
@@ -134,9 +142,11 @@ export function WorkspaceShell({
         </div>
       )}
 
-      {/* Content surface — the previewed view lands here. Bottom padding clears
-          the floating command panel. */}
-      <div className="min-h-0 flex-1 overflow-auto">
+      {/* Content surface — the previewed view lands here. `@container` makes
+          this a query container so views written with container queries respond
+          to the surface width (which now tracks the viewport). Bottom padding
+          clears the floating command panel. */}
+      <div className="@container min-h-0 flex-1 overflow-auto">
         <div className={commandPanel ? "pb-28" : ""}>{children}</div>
       </div>
 

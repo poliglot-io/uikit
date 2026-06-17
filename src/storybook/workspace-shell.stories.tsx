@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { WorkspaceShell } from "./workspace-shell";
 import { withMockTrigger } from "./trigger-mock";
 import { Badge } from "../components/badge";
@@ -92,18 +92,18 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A view framed by the full chrome skeleton. */
+/** The full-page app layout: header + control panel filling the viewport, a
+ *  view in the surface. Switch the toolbar viewport to watch it reflow. */
 export const InContext: Story = {
   render: () => (
-    <div className="p-6">
-      <WorkspaceShell>
-        <DemoView />
-      </WorkspaceShell>
-    </div>
+    <WorkspaceShell>
+      <DemoView />
+    </WorkspaceShell>
   ),
 };
 
-/** Just the view surface — chrome hidden. */
+/** Just the view surface — chrome hidden. A small framed box for gauging the
+ *  view in isolation. */
 export const BareSurface: Story = {
   render: () => (
     <div className="p-6">
@@ -114,15 +114,13 @@ export const BareSurface: Story = {
   ),
 };
 
-/** The shell with an empty surface, to gauge proportions. */
+/** The full-page shell with an empty surface, to gauge proportions. */
 export const Empty: Story = {
   render: () => (
-    <div className="p-6">
-      <WorkspaceShell>
-        <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-          View surface
-        </div>
-      </WorkspaceShell>
-    </div>
+    <WorkspaceShell>
+      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+        View surface
+      </div>
+    </WorkspaceShell>
   ),
 };

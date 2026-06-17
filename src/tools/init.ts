@@ -50,7 +50,7 @@ export default function PersonCard({ name, email }: Props) {
 }
 `;
 
-const PERSON_CARD_STORY_TSX = `import type { Meta, StoryObj } from "@storybook/react";
+const PERSON_CARD_STORY_TSX = `import type { Meta, StoryObj } from "@storybook/react-vite";
 import PersonCard from "./PersonCard";
 
 const meta = {
@@ -82,12 +82,11 @@ function generatePackageJson(name: string, version: string): string {
         "@poliglot-io/uikit": `^${version}`,
       },
       devDependencies: {
-        "@storybook/addon-essentials": "^8.6.0",
-        "@storybook/addon-themes": "^8.6.0",
-        "@storybook/react-vite": "^8.6.0",
+        "@storybook/addon-themes": "^10.4.6",
+        "@storybook/react-vite": "^10.4.6",
         "@tailwindcss/vite": "^4",
         "@types/react": "^19.0.0",
-        storybook: "^8.6.0",
+        storybook: "^10.4.6",
         tailwindcss: "^4",
         typescript: "^5.0.0",
       },

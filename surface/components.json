@@ -319,7 +319,7 @@
           "inherits": [],
           "props": [
             {
-              "name": "__@hasInstance@1118",
+              "name": "__@hasInstance@1117",
               "type": "(value: any) => boolean",
               "required": true,
               "default": null,
@@ -704,6 +704,14 @@
               "default": null,
               "description": null,
               "origin": "this"
+            },
+            {
+              "name": "deferPointerDownOutside",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "When `true`, a `'pointerdown'` event outside of the layered element will\nwait for the interaction's click event before dispatching, allowing\nthird-party code to stop propagation of later events and cancel dismissal.",
+              "origin": "RadixDismissableLayer"
             },
             {
               "name": "forceMount",
@@ -6067,6 +6075,14 @@
               "default": null,
               "description": null,
               "origin": "RadixContextMenu"
+            },
+            {
+              "name": "open",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": null,
+              "origin": "RadixContextMenu"
             }
           ]
         },
@@ -6596,6 +6612,14 @@
           ],
           "props": [
             {
+              "name": "align",
+              "type": "enum",
+              "required": false,
+              "default": null,
+              "description": "Controls the direction the subcontent appears from its anchor menu item\nDefault: start",
+              "origin": "RadixMenu"
+            },
+            {
               "name": "alignOffset",
               "type": "number",
               "required": false,
@@ -6972,6 +6996,14 @@
               "default": null,
               "description": null,
               "origin": "this"
+            },
+            {
+              "name": "deferPointerDownOutside",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "When `true`, a `'pointerdown'` event outside of the layered element will\nwait for the interaction's click event before dispatching, allowing\nthird-party code to stop propagation of later events and cancel dismissal.",
+              "origin": "RadixDismissableLayer"
             },
             {
               "name": "forceMount",
@@ -7631,6 +7663,14 @@
               "default": null,
               "description": null,
               "origin": "this"
+            },
+            {
+              "name": "deferPointerDownOutside",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "When `true`, a `'pointerdown'` event outside of the layered element will\nwait for the interaction's click event before dispatching, allowing\nthird-party code to stop propagation of later events and cancel dismissal.",
+              "origin": "RadixDismissableLayer"
             },
             {
               "name": "forceMount",
@@ -8529,6 +8569,14 @@
           ],
           "props": [
             {
+              "name": "align",
+              "type": "enum",
+              "required": false,
+              "default": null,
+              "description": "Controls the direction the subcontent appears from its anchor menu item\nDefault: start",
+              "origin": "RadixMenu"
+            },
+            {
               "name": "alignOffset",
               "type": "number",
               "required": false,
@@ -8863,16 +8911,7 @@
             "React.Attributes",
             "React.RefAttributes"
           ],
-          "props": [
-            {
-              "name": "children",
-              "type": "ReactNode",
-              "required": false,
-              "default": null,
-              "description": null,
-              "origin": "RadixSlot"
-            }
-          ]
+          "props": []
         },
         {
           "name": "FormDescription",
@@ -10644,6 +10683,14 @@
           ],
           "props": [
             {
+              "name": "align",
+              "type": "enum",
+              "required": false,
+              "default": null,
+              "description": "Controls the direction the subcontent appears from its anchor menu item\nDefault: start",
+              "origin": "RadixMenu"
+            },
+            {
               "name": "alignOffset",
               "type": "number",
               "required": false,
@@ -11059,6 +11106,14 @@
               "default": null,
               "description": null,
               "origin": "this"
+            },
+            {
+              "name": "deferPointerDownOutside",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "When `true`, a `'pointerdown'` event outside of the layered element will\nwait for the interaction's click event before dispatching, allowing\nthird-party code to stop propagation of later events and cancel dismissal.",
+              "origin": "RadixDismissableLayer"
             },
             {
               "name": "forceMount",
@@ -12046,6 +12101,14 @@
               "default": null,
               "description": null,
               "origin": "RadixPopper"
+            },
+            {
+              "name": "deferPointerDownOutside",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "When `true`, a `'pointerdown'` event outside of the layered element will\nwait for the interaction's click event before dispatching, allowing\nthird-party code to stop propagation of later events and cancel dismissal.",
+              "origin": "RadixDismissableLayer"
             },
             {
               "name": "forceMount",
@@ -13074,6 +13137,14 @@
               "origin": "RadixPopper"
             },
             {
+              "name": "forceMount",
+              "type": "true",
+              "required": false,
+              "default": null,
+              "description": "Used to force mounting when more control is needed. Useful when\ncontrolling animation with React animation libraries.",
+              "origin": "RadixSelect"
+            },
+            {
               "name": "hideWhenDetached",
               "type": "boolean",
               "required": false,
@@ -13652,6 +13723,14 @@
               "default": null,
               "description": null,
               "origin": "this"
+            },
+            {
+              "name": "deferPointerDownOutside",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "When `true`, a `'pointerdown'` event outside of the layered element will\nwait for the interaction's click event before dispatching, allowing\nthird-party code to stop propagation of later events and cancel dismissal.",
+              "origin": "RadixDismissableLayer"
             },
             {
               "name": "forceMount",

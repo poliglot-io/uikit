@@ -5,7 +5,7 @@
  * freely. The `main` side lives in `./preset` and stays Node-ESM clean.
  */
 
-import type { Preview } from "@storybook/react";
+import type { Preview } from "@storybook/react-vite";
 import { withThemeByClassName } from "@storybook/addon-themes";
 
 /**
@@ -22,18 +22,36 @@ export const themeDecorator = withThemeByClassName({
 
 /** Width presets from a narrow floor up to a wide desktop. */
 const viewports = {
-  floor: { name: "Floor (360)", styles: { width: "360px", height: "900px" } },
-  mobile: { name: "Mobile (390)", styles: { width: "390px", height: "900px" } },
-  tablet: { name: "Tablet (768)", styles: { width: "768px", height: "1024px" } },
+  floor: {
+    name: "Floor (360)",
+    type: "mobile" as const,
+    styles: { width: "360px", height: "900px" },
+  },
+  mobile: {
+    name: "Mobile (390)",
+    type: "mobile" as const,
+    styles: { width: "390px", height: "900px" },
+  },
+  tablet: {
+    name: "Tablet (768)",
+    type: "tablet" as const,
+    styles: { width: "768px", height: "1024px" },
+  },
   laptop: {
     name: "Laptop (1024)",
+    type: "desktop" as const,
     styles: { width: "1024px", height: "800px" },
   },
   desktop: {
     name: "Desktop (1280)",
+    type: "desktop" as const,
     styles: { width: "1280px", height: "900px" },
   },
-  wide: { name: "Wide (1536)", styles: { width: "1536px", height: "960px" } },
+  wide: {
+    name: "Wide (1536)",
+    type: "desktop" as const,
+    styles: { width: "1536px", height: "960px" },
+  },
 };
 
 /** Shared Storybook `preview` parameters. */
@@ -44,6 +62,7 @@ export const baseParameters: Preview["parameters"] = {
   },
   backgrounds: { disable: true },
   // Full-width is the default (no entry selected); these add explicit device
-  // widths from mobile up to a wide desktop.
-  viewport: { viewports },
+  // widths from mobile up to a wide desktop. SB9+ renamed `viewports` ->
+  // `options`; the selected viewport is a global (`globals.viewport.value`).
+  viewport: { options: viewports },
 };
