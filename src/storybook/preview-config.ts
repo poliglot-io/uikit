@@ -56,7 +56,10 @@ const viewports = {
 
 /** Shared Storybook `preview` parameters. */
 export const baseParameters: Preview["parameters"] = {
-  layout: "centered",
+  // Fullscreen so the workspace shell fills the viewport (it provides its own
+  // chrome + centered content column); a `centered` layout would shrink-wrap the
+  // story and box it in the middle of the canvas.
+  layout: "fullscreen",
   controls: {
     matchers: { color: /(background|color)$/i, date: /Date$/i },
   },
