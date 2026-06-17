@@ -22,6 +22,14 @@ export {
   type MockTriggerProviderProps,
 } from "./trigger-mock";
 
+export {
+  withMockQuery,
+  createMockQuery,
+  type MockQueryOptions,
+} from "./query-mock";
+
+export { RscPreview, type RscPreviewProps } from "./rsc-preview";
+
 // NOTE: `defineMain` is intentionally NOT re-exported here. It pulls in the
 // server-only `@tailwindcss/vite` plugin; this barrel is imported by the
 // browser-side preview, so it must stay browser-safe. Import `defineMain` from
