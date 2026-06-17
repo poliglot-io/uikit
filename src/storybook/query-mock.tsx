@@ -16,19 +16,23 @@ export interface MockQueryOptions {
    * the component passed; return the data (or a promise of it). Defaults to
    * `null`.
    */
-  resolve?: (sparql: string) => unknown | Promise<unknown>;
+  resolve?: (query: string) => unknown | Promise<unknown>;
   /** Delay (ms) before resolving, to preview the loading state. */
   delayMs?: number;
 }
 
-/** Build a stand-in `useQuery` implementation. */
+/**
+ * Build a stand-in `useQuery` implementation. Generic to match the real
+ * `useQuery<T>` signature, so it drops in as `globalThis.useQuery`; the fixture
+ * is cast to the requested type.
+ */
 export function createMockQuery(
   options: MockQueryOptions = {}
-): (sparql: string) => Promise<unknown> {
+): <T = unknown>(query: string) => Promise<T> {
   const { resolve, delayMs = 0 } = options;
-  return async (sparql: string) => {
+  return async <T = unknown,>(query: string): Promise<T> => {
     if (delayMs) await new Promise(r => setTimeout(r, delayMs));
-    return resolve ? resolve(sparql) : null;
+    return (resolve ? await resolve(query) : null) as T;
   };
 }
 
