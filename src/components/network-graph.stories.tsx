@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { NetworkGraph } from "./network-graph";
+import { makeDenseGraph, makeIriLabelGraph } from "./network-graph.fixtures";
 
 const meta = {
   title: "UI Kit/NetworkGraph",
@@ -89,6 +90,85 @@ export const Default: Story = {
     <div className="p-4">
       <div className="h-[560px] w-full rounded-md border">
         <NetworkGraph nodes={nodes} edges={edges} hideTooltips={false} />
+      </div>
+    </div>
+  ),
+};
+
+/**
+ * Every label is a long IRI — the common case in a real RDF view. Use this to
+ * judge label truncation/ellipsis and node sizing without hundreds of nodes in
+ * the way. Tooltips are on so the full IRI and properties are inspectable.
+ */
+const iriGraph = makeIriLabelGraph();
+export const IriLabels: Story = {
+  render: () => (
+    <div className="p-4">
+      <div className="h-[560px] w-full rounded-md border">
+        <NetworkGraph
+          nodes={iriGraph.nodes}
+          edges={iriGraph.edges}
+          hideTooltips={false}
+        />
+      </div>
+    </div>
+  ),
+};
+
+/**
+ * ~150 nodes with dense, hub-biased relationships and IRI labels — close to a
+ * typical production view. The stress case for node sizing, label
+ * de-cluttering, edge-label legibility, and orbiting/hovering at scale.
+ */
+const denseGraph = makeDenseGraph(150, 3);
+export const DenseMedium: Story = {
+  render: () => (
+    <div className="p-4">
+      <div className="h-[680px] w-full rounded-md border">
+        <NetworkGraph
+          nodes={denseGraph.nodes}
+          edges={denseGraph.edges}
+          hideTooltips={false}
+        />
+      </div>
+    </div>
+  ),
+};
+
+/**
+ * ~400 nodes — the upper end of what our visualizations render. Mostly for
+ * checking that the graph stays readable (and performant) at scale.
+ */
+const denseLargeGraph = makeDenseGraph(400, 3, 99);
+export const DenseLarge: Story = {
+  render: () => (
+    <div className="p-4">
+      <div className="h-[720px] w-full rounded-md border">
+        <NetworkGraph
+          nodes={denseLargeGraph.nodes}
+          edges={denseLargeGraph.edges}
+          hideTooltips={false}
+        />
+      </div>
+    </div>
+  ),
+};
+
+/**
+ * The same ~150-node graph with a hub node selected. Demonstrates the
+ * highlight de-cluttering: only the selected node and its neighbors stay lit
+ * and labeled, the rest dims out — readable even at this density.
+ */
+export const DenseSelected: Story = {
+  render: () => (
+    <div className="p-4">
+      <div className="h-[680px] w-full rounded-md border">
+        <NetworkGraph
+          nodes={denseGraph.nodes}
+          edges={denseGraph.edges}
+          selectedId="n54"
+          hideTooltips={false}
+        />
       </div>
     </div>
   ),

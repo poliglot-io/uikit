@@ -1,6 +1,6 @@
 {
   "name": "@poliglot-io/uikit",
-  "version": "0.1.0-beta.15",
+  "version": "0.1.0-beta.16",
   "description": "UI components and build tooling for Poliglot matrix development",
   "type": "module",
   "main": "dist/index.js",
@@ -321,7 +321,6 @@
     "mermaid": "^11.12.2",
     "radix-ui": "^1.4.3",
     "react-day-picker": "^9.11.0",
-    "react-force-graph-2d": "^1.29.1",
     "react-force-graph-3d": "^1.29.1",
     "react-hook-form": "^7.54.0",
     "react-resizable-panels": "^2.1.0",

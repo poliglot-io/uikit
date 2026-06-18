@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "package": "@poliglot-io/uikit",
-  "version": "0.1.0-beta.15",
+  "version": "0.1.0-beta.16",
   "components": [
     {
       "file": "src/components/accordion.tsx",
@@ -11471,8 +11471,76 @@
       "variants": []
     },
     {
+      "file": "src/components/network-graph.fixtures.ts",
+      "jsdoc": "Deterministic fixture generators for NetworkGraph stories.\n\nThese model a generic software-delivery knowledge graph (projects, teams,\npeople, services, repositories, issues…). The point is to exercise the graph\nthe way a real RDF view does: node labels are often full IRIs (long, with\nshared namespace prefixes), entities carry several key/value properties, and\na single view can hold hundreds of nodes with dense relationships.\n\nEverything here is seeded and deterministic — no Math.random — so stories\nrender identically across reloads and visual diffs stay stable.",
+      "components": [
+        {
+          "name": "makeDenseGraph",
+          "description": "Generate a dense graph with `nodeCount` nodes and roughly `avgDegree` edges\nper node. Node labels are full IRIs to exercise the long-label / ellipsis\npath. Each node carries several properties so the tooltip has real content.",
+          "inherits": [],
+          "props": []
+        },
+        {
+          "name": "makeIriLabelGraph",
+          "description": "A small graph whose every label is a long IRI — for inspecting how labels\ntruncate at readable zoom without the noise of hundreds of nodes.",
+          "inherits": [],
+          "props": [
+            {
+              "name": "toExponential",
+              "type": "(fractionDigits?: number | undefined) => string",
+              "required": true,
+              "default": null,
+              "description": "Returns a string containing a number represented in exponential notation.\n@param fractionDigits Number of digits after the decimal point. Must be in the range 0 - 20, inclusive.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "toFixed",
+              "type": "(fractionDigits?: number | undefined) => string",
+              "required": true,
+              "default": null,
+              "description": "Returns a string representing a number in fixed-point notation.\n@param fractionDigits Number of digits after the decimal point. Must be in the range 0 - 20, inclusive.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "toLocaleString",
+              "type": "{ (locales?: string | string[], options?: NumberFormatOptions): string; (locales?: LocalesArgument, options?: NumberFormatOptions | undefined): string; }",
+              "required": false,
+              "default": "function toLocaleString() { [native code] }",
+              "description": "Converts a number to a string by using the current or specified locale.\n@param locales A locale string or array of locale strings that contain one or more language or locale tags. If you include more than one locale string, list them in descending order of priority so that the first entry is the preferred locale. If you omit this parameter, the default locale of the JavaScript runtime is used.\n@param options An object that contains one or more properties that specify comparison options.\n@param locales A locale string, array of locale strings, Intl.Locale object, or array of Intl.Locale objects that contain one or more language or locale tags. If you include more than one locale string, list them in descending order of priority so that the first entry is the preferred locale. If you omit this parameter, the default locale of the JavaScript runtime is used.\n@param options An object that contains one or more properties that specify comparison options.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "toPrecision",
+              "type": "(precision?: number | undefined) => string",
+              "required": true,
+              "default": null,
+              "description": "Returns a string containing a number represented either in exponential or fixed-point notation with a specified number of digits.\n@param precision Number of significant digits. Must be in the range 1 - 21, inclusive.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "toString",
+              "type": "(radix?: number) => string",
+              "required": false,
+              "default": "function toString() { [native code] }",
+              "description": "Returns a string representation of an object.\n@param radix Specifies a radix for converting numeric values to strings. This value is only used for numbers.",
+              "origin": "typescript/lib"
+            },
+            {
+              "name": "valueOf",
+              "type": "() => number",
+              "required": false,
+              "default": "function valueOf() { [native code] }",
+              "description": "Returns the primitive value of the specified object.",
+              "origin": "typescript/lib"
+            }
+          ]
+        }
+      ],
+      "variants": []
+    },
+    {
       "file": "src/components/network-graph.tsx",
-      "jsdoc": "Network graph visualization with 2D and 3D rendering.\n\nPass nodes and edges as data; interaction handlers cover\nselection, hover, and expand. The graph can be explored in a\n2D force-directed layout (HTML canvas) or navigated in a 3D\nforce-directed scene (WebGL). Both modes run the same physics\nengine; users toggle between them with the control in the\ntop-right, and the default mode is configurable.",
+      "jsdoc": "Network graph visualization.\n\nPass nodes and edges as data; interaction handlers cover selection, hover,\nand expand. The graph is rendered as a 3D force-directed scene (WebGL): nodes\nare spheres laid out by a physics simulation, with labels and relationship\nedges that de-clutter as the graph grows. Orbit, zoom, hover for a property\ncard, click to select, double-click to expand.",
       "components": [
         {
           "name": "NetworkGraph",
@@ -11485,22 +11553,6 @@
               "required": false,
               "default": null,
               "description": null,
-              "origin": "NetworkGraphProps"
-            },
-            {
-              "name": "defaultDimensions",
-              "type": "enum",
-              "required": false,
-              "default": "2d",
-              "description": "Initial render mode when uncontrolled. Default \"2d\".",
-              "origin": "NetworkGraphProps"
-            },
-            {
-              "name": "dimensions",
-              "type": "enum",
-              "required": false,
-              "default": null,
-              "description": "Controlled render mode. When set, the toggle reflects this value.",
               "origin": "NetworkGraphProps"
             },
             {
@@ -11536,14 +11588,6 @@
               "origin": "NetworkGraphProps"
             },
             {
-              "name": "onDimensionsChange",
-              "type": "((dimensions: GraphDimensions) => void)",
-              "required": false,
-              "default": null,
-              "description": "Called when the user switches between 2D and 3D.",
-              "origin": "NetworkGraphProps"
-            },
-            {
               "name": "onExpandNode",
               "type": "((nodeId: string) => void)",
               "required": false,
@@ -11573,14 +11617,6 @@
               "required": false,
               "default": null,
               "description": null,
-              "origin": "NetworkGraphProps"
-            },
-            {
-              "name": "showDimensionToggle",
-              "type": "boolean",
-              "required": false,
-              "default": "true",
-              "description": "Show the 2D/3D toggle control. Default true.",
               "origin": "NetworkGraphProps"
             }
           ]
