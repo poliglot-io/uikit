@@ -11,7 +11,7 @@
  * render identically across reloads and visual diffs stay stable.
  */
 
-import type { GraphNode, GraphEdge } from "./network-graph";
+import type { GraphNode, GraphEdge } from "../network-graph";
 
 /** Tiny seeded PRNG (mulberry32) so fixtures are stable across reloads. */
 function mulberry32(seed: number): () => number {

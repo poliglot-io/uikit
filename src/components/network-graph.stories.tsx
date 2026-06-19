@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { NetworkGraph } from "./network-graph";
-import { makeDenseGraph, makeIriLabelGraph } from "./network-graph.fixtures";
+import { makeDenseGraph, makeIriLabelGraph } from "./__fixtures__/network-graph.fixtures";
 
 const meta = {
   title: "UI Kit/NetworkGraph",

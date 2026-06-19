@@ -20,6 +20,7 @@
     "node_modules",
     "dist",
     "src/**/__tests__/**",
+    "src/**/__fixtures__/**",
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
     "src/**/*.stories.ts",

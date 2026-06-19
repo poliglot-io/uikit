@@ -282,6 +282,7 @@ function main(): number {
     .filter((f) => !f.startsWith("index") && !f.startsWith("__"))
     .filter((f) => !f.endsWith(".stories.tsx") && !f.endsWith(".stories.ts"))
     .filter((f) => !f.endsWith(".test.tsx") && !f.endsWith(".test.ts"))
+    .filter((f) => !f.endsWith(".fixtures.tsx") && !f.endsWith(".fixtures.ts"))
     .sort();
 
   const components: SerializedFile[] = [];
