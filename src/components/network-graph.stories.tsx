@@ -174,6 +174,46 @@ export const DenseSelected: Story = {
   ),
 };
 
+/**
+ * Multiple relationships between the same two resources. Each edge bows onto its
+ * own arc so every relationship — and its label — stays legible instead of
+ * stacking on a single line. Includes a self-loop (`mentions`) and a 2× / 3× /
+ * 4× parallel bundle to exercise the fan-out.
+ */
+const multiEdgeNodes = [
+  { id: "alice", label: "Alice", type: "ex:Person" },
+  { id: "bob", label: "Bob", type: "ex:Person" },
+  { id: "acme", label: "Acme Corp", type: "ex:Project" },
+  { id: "note", label: "Shared Note", type: "ex:Issue" },
+];
+const multiEdgeEdges = [
+  // Alice ↔ Bob: four distinct relationships between the same pair.
+  { source: "alice", target: "bob", label: "manages" },
+  { source: "alice", target: "bob", label: "mentors" },
+  { source: "bob", target: "alice", label: "reportsTo" },
+  { source: "alice", target: "bob", label: "collaboratesWith" },
+  // Alice → Acme: two relationships, opposite directions.
+  { source: "alice", target: "acme", label: "founded" },
+  { source: "acme", target: "alice", label: "employs" },
+  // Bob → Acme: a single relationship stays straight.
+  { source: "bob", target: "acme", label: "advises" },
+  // Self-loop on the note.
+  { source: "note", target: "note", label: "mentions" },
+];
+export const MultipleEdges: Story = {
+  render: () => (
+    <div className="p-4">
+      <div className="h-[560px] w-full rounded-md border">
+        <NetworkGraph
+          nodes={multiEdgeNodes}
+          edges={multiEdgeEdges}
+          hideTooltips={false}
+        />
+      </div>
+    </div>
+  ),
+};
+
 export const Empty: Story = {
   render: () => (
     <div className="p-4">
