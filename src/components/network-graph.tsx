@@ -1,11 +1,10 @@
 /**
- * Network graph visualization.
+ * Network graph visualization with 3D rendering.
  *
- * Pass nodes and edges as data; interaction handlers cover selection, hover,
- * and expand. The graph is rendered as a 3D force-directed scene (WebGL): nodes
- * are spheres laid out by a physics simulation, with labels and relationship
- * edges that de-clutter as the graph grows. Orbit, zoom, hover for a property
- * card, click to select, double-click to expand.
+ * Pass nodes and edges as data; interaction handlers cover
+ * selection, hover, and expand. The graph is navigated in a 3D
+ * force-directed scene (WebGL), with always-on node and relationship
+ * labels and a type legend.
  */
 "use client";
 
@@ -155,45 +154,6 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/**
- * Truncate a display string to `max` characters with a middle ellipsis,
- * keeping both ends. Content-agnostic — it does NOT parse the string, so it
- * works equally for plain labels and full IRIs (where the distinctive part is
- * the tail/local-name). The full, untruncated label still shows in the tooltip.
- */
-function truncateMiddle(text: string, max: number): string {
-  if (text.length <= max) return text;
-  const ellipsis = "…";
-  const keep = max - ellipsis.length;
-  const head = Math.ceil(keep / 2);
-  const tail = Math.floor(keep / 2);
-  return text.slice(0, head) + ellipsis + text.slice(text.length - tail);
-}
-
-// Label display limits. Node labels are commonly full IRIs; edge labels are
-// predicate qnames/IRIs. Both are middle-truncated past these lengths.
-const NODE_LABEL_MAX = 28;
-const EDGE_LABEL_MAX = 18;
-
-// Radius of a node, in force-graph units (drives nodeRelSize / link spacing).
-const NODE_RADIUS = 8;
-
-// Label de-cluttering. Always-on labels for every node and edge turn a dense
-// graph into an unreadable mass, so labels are gated by how close the camera
-// is. A selection overrides the gate and always labels its own neighborhood.
-const LABEL_DENSITY_THRESHOLD = 60;
-// 3D label LOD. A dense 3D graph can be hundreds of world-units across, so an
-// absolute camera-distance cutoff is fragile (the nearest node may still be
-// far at fit). Instead, label the N nodes nearest the camera — the front of
-// the cloud — so labels are always visible from any distance, stay readable as
-// you orbit, and the count is capped regardless of graph size. Edge labels
-// reuse the resulting distance cutoff, scaled tighter since they clutter more.
-const LABEL_BUDGET_3D = 45;
-const EDGE_LABEL_CUTOFF_SCALE = 0.8;
-// Padding (px) for the initial fit — a bit of margin so the graph reads as
-// "zoomed out" with breathing room rather than filling the frame edge to edge.
-const INITIAL_FIT_PADDING = 60;
-
 /** Tracks whether the document is in dark mode via the `dark` class. */
 function useIsDark(): boolean {
   const [isDark, setIsDark] = useState(false);
@@ -228,34 +188,62 @@ interface HighlightInfo {
   keep: Set<string>;
 }
 
+/** Number of physics ticks the view simulates before freezing the layout. */
+const COOLDOWN_TICKS = 100;
+
 /**
  * Layout spread. The d3-force defaults pack nodes tightly; stronger charge
  * repulsion and a longer link distance give the graph more room so it reads
- * closer to the original layout. Applied to both 2D and 3D.
+ * closer to the original layout.
  */
 const CHARGE_STRENGTH = -240;
 const LINK_DISTANCE = 70;
 
 /**
- * Force-layout parameters scaled by node count. The d3 defaults (and a fixed
- * charge/link distance) pack a large graph into a tight grey ball; stronger
- * charge repulsion and longer links spread it so the structure reads, and more
- * cooldown ticks give a big graph time to settle. Shared by 2D and 3D.
+ * Truncate a display string to `max` characters with a middle ellipsis,
+ * keeping both ends. Content-agnostic — it does NOT parse the string, so it
+ * works equally for plain labels and full IRIs (where the distinctive part is
+ * the tail/local-name). The full, untruncated label still shows in the tooltip.
  */
-function layoutParams(nodeCount: number) {
-  return {
-    charge: CHARGE_STRENGTH * (1 + nodeCount / 40),
-    linkDistance: LINK_DISTANCE * (1 + nodeCount / 120),
-    // Keep the settle short (~1-2s) so the fit-on-settle frames the graph
-    // before the user starts interacting, rather than yanking the view ~10s in.
-    cooldownTicks: Math.min(120, Math.max(60, Math.round(nodeCount * 0.8))),
-  };
+function truncateMiddle(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const ellipsis = "…";
+  const keep = max - ellipsis.length;
+  const head = Math.ceil(keep / 2);
+  const tail = Math.floor(keep / 2);
+  return text.slice(0, head) + ellipsis + text.slice(text.length - tail);
 }
+
+// Label display limits. Node labels are commonly full IRIs; edge labels are
+// predicate qnames/IRIs. Both are middle-truncated past these lengths.
+const NODE_LABEL_MAX = 28;
+const EDGE_LABEL_MAX = 18;
+
+// Label de-cluttering by camera closeness. Always-on labels for every node and
+// edge turn a dense graph into an unreadable mass, so in dense scenes labels
+// are revealed only for the nodes nearest the camera (a selection overrides the
+// gate and labels its own neighborhood). Sparse scenes keep every label on.
+const LABEL_DENSITY_THRESHOLD = 60;
+// A dense 3D graph can be hundreds of world-units across, so an absolute
+// camera-distance cutoff is fragile (the nearest node may still be far at fit).
+// Instead, label the N nodes nearest the camera — the front of the cloud — so
+// labels stay visible from any distance and the count is capped regardless of
+// graph size. Edge labels reuse the resulting distance cutoff, scaled tighter
+// since they clutter more.
+const LABEL_BUDGET_3D = 45;
+const EDGE_LABEL_CUTOFF_SCALE = 0.8;
+
+// Initial framing. Padding (px) leaves a margin around the graph on the initial
+// fit. INITIAL_FIT_ZOOM then rests the camera at that fraction of the
+// fit-everything distance — closer than a full fit so large graphs don't start
+// so far away they read as empty. 1 = fit exactly; lower = closer.
+const INITIAL_FIT_PADDING = 60;
+const INITIAL_FIT_ZOOM = 0.7;
 
 // --- Shared graph helpers ---
 
 /**
- * Tracks the container's pixel size. Both force-graph variants need an explicit
+ * Tracks the container's pixel size. The force-graph needs an explicit
  * width/height; this mirrors the container with a ResizeObserver.
  */
 function useContainerSize(ref: React.RefObject<HTMLDivElement | null>) {
@@ -277,7 +265,7 @@ function useContainerSize(ref: React.RefObject<HTMLDivElement | null>) {
  * Build the force-graph data. Node objects are reused across renders (keyed by
  * id) so the simulation keeps their settled positions instead of relaying out
  * the whole scene on every data change. Each node carries the same pale fill +
- * colored border the legend uses, so 2D and 3D render an identical look.
+ * colored border the legend uses.
  */
 function useGraphData(nodes: GraphNode[], edges: GraphEdge[], isDark: boolean) {
   const nodeObjsRef = useRef<Map<string, NodeObject>>(new Map());
@@ -319,7 +307,7 @@ function useGraphData(nodes: GraphNode[], edges: GraphEdge[], isDark: boolean) {
 
 /**
  * Which ids stay highlighted: the selection neighborhood, or search matches.
- * `null` means "no dimming". Shared by both views.
+ * `null` means "no dimming".
  */
 function useHighlight(
   nodes: GraphNode[],
@@ -351,8 +339,8 @@ function useHighlight(
 /**
  * Fit-on-settle latch. Returns an `onEngineStop` handler that fits the scene
  * into view the first time the layout settles, plus resets the latch whenever
- * the graph transitions in and out of the empty state. Shared by both views;
- * the caller supplies the fit action against its own force-graph instance.
+ * the graph transitions in and out of the empty state. The caller supplies the
+ * fit action against its own force-graph instance.
  */
 function useFitOnSettle(nodeCount: number, fit: () => void) {
   const didFitRef = useRef(false);
@@ -386,8 +374,8 @@ function linkDimmed(link: LinkObject, highlight: HighlightInfo | null): boolean 
 
 /**
  * Distinguish a single click (select) from a double click (expand). Returns a
- * click handler shared by both views; the 3D caller layers camera easing on
- * top before delegating here.
+ * click handler; the 3D caller layers camera easing on top before delegating
+ * here.
  */
 function useNodeClickDispatch(
   onSelect: React.RefObject<((node: GraphNode | null) => void) | undefined>,
@@ -416,9 +404,8 @@ function useNodeClickDispatch(
 }
 
 /**
- * Build the hover-tooltip HTML for a node. Used by both views (the force-graph
- * engine injects raw HTML for tooltips), so the two modes show a consistent
- * card — same theme variables, layout, and typography.
+ * Build the hover-tooltip HTML for a node. The force-graph engine injects raw
+ * HTML for tooltips, so this renders a card matching the theme variables.
  */
 function renderTooltipHtml(node: GraphNode): string {
   const muted = "var(--muted-foreground,#737373)";
@@ -464,7 +451,7 @@ function renderTooltipHtml(node: GraphNode): string {
 // The force-graph engine renders tooltips through the `float-tooltip` library,
 // which wraps the label HTML in a `.float-tooltip-kap` element with its own
 // background, padding, and border. Strip that chrome so our themed card is the
-// only thing the user sees. Shared by both views.
+// only thing the user sees.
 const TOOLTIP_STYLE_ID = "poliglot-network-graph-tooltip";
 const TOOLTIP_STYLE = `.float-tooltip-kap{background:transparent!important;border:0!important;padding:0!important;border-radius:0!important;box-shadow:none!important;font:inherit!important;color:inherit!important;}`;
 
@@ -478,7 +465,7 @@ function useNeutralizeTooltipChrome() {
   }, []);
 }
 
-// --- Component ---
+// --- Component (wrapper) ---
 
 export function NetworkGraph({
   nodes,
@@ -492,6 +479,7 @@ export function NetworkGraph({
   hideTooltips = true,
 }: NetworkGraphProps) {
   const isDark = useIsDark();
+
   const hasNodes = nodes.length > 0;
 
   // Compute unique types for legend
@@ -535,15 +523,12 @@ export function NetworkGraph({
   );
 }
 
-// --- removed: 2D view (react-force-graph-2d). The canvas shadow-buffer
-// hit-test is unreliable for dense graphs (links occlude nodes, AA on small
-// targets, DPR pixel-read drift), so the graph is 3D-only — three.js raycasting
-// gives robust per-node interaction. The 2D view + dimension toggle were cut. --
-
 // --- 3D view (react-force-graph-3d / three) ---
 
 type Graph3DComponent = (typeof import("react-force-graph-3d"))["default"];
 type ThreeModule = typeof import("three");
+
+const NODE_RADIUS = 5;
 
 function NetworkGraph3D({
   nodes,
@@ -599,9 +584,9 @@ function NetworkGraph3D({
   const highlightRef = useRef(highlight);
   highlightRef.current = highlight;
 
-  // Sparse 3D scenes keep their labels always on (like the 2D sparse case);
-  // dense ones reveal labels by camera distance so they start clean. Held in a
-  // ref so the per-frame linkPositionUpdate can read it without re-subscribing.
+  // Sparse scenes keep their labels always on; dense ones reveal labels by
+  // camera closeness so they start clean. Held in a ref so the per-frame
+  // linkPositionUpdate can read it without re-subscribing.
   const dense = nodes.length > LABEL_DENSITY_THRESHOLD;
   const denseRef = useRef(dense);
   denseRef.current = dense;
@@ -611,12 +596,10 @@ function NetworkGraph3D({
   // the same near region as nodes.
   const labelCutoffRef = useRef(Infinity);
 
-  const layout = useMemo(() => layoutParams(nodes.length), [nodes.length]);
-
   // Render nodes with unlit (MeshBasic) materials so they show the EXACT
   // palette hex — three.js lighting would otherwise shade the pale fills into
-  // muddy greys. A small back-side outline sphere reproduces the 2D node's
-  // colored ring around a soft fill. Geometry + materials are cached/shared.
+  // muddy greys. A small back-side outline sphere reproduces a colored ring
+  // around a soft fill. Geometry + materials are cached/shared.
   const dimFill = isDark ? "#3a3a3a" : "#d4d4d4";
   const dimBorder = isDark ? "#525252" : "#a3a3a3";
   const innerGeomRef = useRef<InstanceType<ThreeModule["SphereGeometry"]> | null>(
@@ -637,9 +620,9 @@ function NetworkGraph3D({
       // Only rendered while `api` is loaded (the Graph itself gates on it).
       const three = api!.three;
       if (!innerGeomRef.current)
-        innerGeomRef.current = new three.SphereGeometry(7, 16, 16);
+        innerGeomRef.current = new three.SphereGeometry(4.5, 16, 16);
       if (!outerGeomRef.current)
-        outerGeomRef.current = new three.SphereGeometry(8.4, 16, 16);
+        outerGeomRef.current = new three.SphereGeometry(5.6, 16, 16);
 
       const dimmed = !!highlight && !highlight.keep.has(String(node.id));
       const fill = dimmed ? dimFill : (node.fill as string);
@@ -666,9 +649,10 @@ function NetworkGraph3D({
       group.add(new three.Mesh(outerGeomRef.current, material(border, three.BackSide)));
       group.add(new three.Mesh(innerGeomRef.current, material(fill, three.FrontSide)));
 
-      // Text label below the node, mirroring the 2D layout. Always built but
-      // hidden by default; the camera-distance LOD loop reveals it (the 3D
-      // analog of 2D zoom-reveal), so dense scenes stay clean until you fly in.
+      // Text label below the node. Node labels are commonly full IRIs, so
+      // middle-truncate; the full label still shows in the tooltip. Built but
+      // hidden by default — the camera-closeness LOD loop reveals it, so dense
+      // scenes stay clean until you fly in.
       const text = truncateMiddle(String(node.label ?? ""), NODE_LABEL_MAX);
       if (text) {
         const labelColor = dimmed
@@ -706,7 +690,7 @@ function NetworkGraph3D({
   );
 
   // Always-on relationship label as a small text sprite at the link midpoint —
-  // the 3D counterpart of the 2D linkCanvasObject (smaller than node labels).
+  // smaller than node labels.
   const linkLabelColor = isDark ? "#a3a3a3" : "#737373";
   const linkThreeObject = useCallback(
     (link: LinkObject) => {
@@ -716,15 +700,15 @@ function NetworkGraph3D({
       if (!rawLabel) return new three.Object3D();
       const label = truncateMiddle(rawLabel, EDGE_LABEL_MAX);
       const opacity = linkDimmed(link, highlight) ? 0.3 : 0.9;
-      // Always built but hidden by default; linkPositionUpdate runs every frame
-      // and reveals it by camera distance (or highlight neighborhood).
+      // Built but hidden by default; linkPositionUpdate runs every frame and
+      // reveals it by camera closeness (or the highlight neighborhood).
       const sprite = buildLabelSprite(
         three,
         label,
         linkLabelColor,
         opacity,
         labelMatCacheRef.current,
-        3.5
+        2.5
       );
       sprite.visible = false;
       return sprite;
@@ -748,7 +732,7 @@ function NetworkGraph3D({
       const my = start.y + (end.y - start.y) / 2;
       const mz = start.z + (end.z - start.z) / 2;
       sprite.position.set(mx, my, mz);
-      // Reveal the edge label by camera distance, or keep it on for the
+      // Reveal the edge label by camera closeness, or keep it on for the
       // highlighted neighborhood. Runs every frame, so it tracks fly-in.
       const hl = highlightRef.current;
       const cam = fgRef.current?.camera();
@@ -811,14 +795,24 @@ function NetworkGraph3D({
     onSelectNodeRef.current?.(null);
   }, []);
 
-  // Frame the scene once the layout first settles, then pull the camera back so
-  // the graph STARTS zoomed out with breathing room (rather than filling the
-  // frame edge to edge). The "Fit" toolbar button still fits tight on demand.
-  // Frame the scene once, when the layout first settles. A single zoomToFit —
-  // the padding gives a little breathing room so it reads as "zoomed out" in one
-  // smooth move (no second dolly, which looked like a double jump).
+  // Fit the scene into view once the layout first settles (shared latch). Fit
+  // the whole graph, then ease in to INITIAL_FIT_ZOOM of that distance so dense
+  // graphs don't start so far away they read as empty. Done in one synchronous
+  // pass so there's no visible "fit then jump": measure the fit distance, snap
+  // back to the start position, then animate start -> scaled-in target.
   const handleEngineStop = useFitOnSettle(nodes.length, () => {
-    fgRef.current?.zoomToFit(400, INITIAL_FIT_PADDING);
+    const fg = fgRef.current;
+    if (!fg) return;
+    const start = { ...fg.camera().position };
+    fg.zoomToFit(0, INITIAL_FIT_PADDING);
+    const fit = fg.camera().position;
+    const target = {
+      x: fit.x * INITIAL_FIT_ZOOM,
+      y: fit.y * INITIAL_FIT_ZOOM,
+      z: fit.z * INITIAL_FIT_ZOOM,
+    };
+    fg.cameraPosition(start, undefined, 0);
+    fg.cameraPosition(target, undefined, 400);
   });
 
   // Toolbar handlers
@@ -837,15 +831,15 @@ function NetworkGraph3D({
   const handleZoomIn = useCallback(() => dolly(0.8), [dolly]);
   const handleZoomOut = useCallback(() => dolly(1.25), [dolly]);
   const handleFit = useCallback(() => {
-    fgRef.current?.zoomToFit(400, 20);
+    fgRef.current?.zoomToFit(400, INITIAL_FIT_PADDING);
   }, []);
   const handleReset = useCallback(() => {
     fgRef.current?.d3ReheatSimulation();
-    fgRef.current?.zoomToFit(600, 30);
+    fgRef.current?.zoomToFit(600, INITIAL_FIT_PADDING);
   }, []);
 
-  // Spread the layout out: configure the forces once the graph is mounted,
-  // then reheat so they take effect. `ready` flips once (not on every resize).
+  // Spread the layout out: configure the forces once the graph is mounted.
+  // `ready` flips once (not on every resize).
   const ready = !!Graph && size.width > 0;
   useEffect(() => {
     const fg = fgRef.current;
@@ -854,13 +848,14 @@ function NetworkGraph3D({
     // (cooldownTicks) picks up the new strength/distance on its next ticks.
     // Do NOT reheat here — restarting the loop can race the layout setup and
     // crash the tick (`layout.tick` on undefined), which blanks the 3D view.
-    fg.d3Force("charge")?.strength(layout.charge);
-    fg.d3Force("link")?.distance(layout.linkDistance);
-  }, [ready, graphData, layout]);
+    fg.d3Force("charge")?.strength(CHARGE_STRENGTH);
+    fg.d3Force("link")?.distance(LINK_DISTANCE);
+  }, [ready, graphData]);
 
-  // Node-label LOD. Edge labels reveal per frame inside linkPositionUpdate, but
-  // nodes have no equivalent hook, so poll on a rAF: show each node's label
-  // once the camera is within range (or it's in the highlighted neighborhood).
+  // Node-label LOD. Edge labels reveal themselves through linkPositionUpdate
+  // (called every frame by the engine), but nodes have no equivalent hook, so
+  // poll on a rAF: show each node's label once the camera is within range (or
+  // it's in the highlighted neighborhood).
   useEffect(() => {
     if (!Graph) return;
     let raf = 0;
@@ -912,9 +907,9 @@ function NetworkGraph3D({
     graphData,
     width: size.width || undefined,
     height: size.height || undefined,
-    // Transparent so the graph sits on the page background, matching the 2D
-    // canvas rather than painting its own backdrop. `alpha` must be enabled on
-    // the WebGL renderer itself, or it clears to opaque black (a black screen).
+    // Transparent so the graph sits on the page background rather than painting
+    // its own backdrop. `alpha` must be enabled on the WebGL renderer itself,
+    // or it clears to opaque black (a black screen).
     backgroundColor: "rgba(0,0,0,0)",
     rendererConfig: { alpha: true, antialias: true },
     nodeRelSize: NODE_RADIUS,
@@ -927,17 +922,12 @@ function NetworkGraph3D({
     linkThreeObjectExtend: true,
     linkThreeObject,
     linkPositionUpdate,
-    linkDirectionalArrowLength: dense ? 0 : 3,
+    linkDirectionalArrowLength: 3,
     linkDirectionalArrowRelPos: 1,
     onNodeClick: handleNodeClick,
     onBackgroundClick: handleBackgroundClick,
     onEngineStop: handleEngineStop,
-    // Pre-settle the layout with warmup ticks (these run synchronously, with no
-    // render cost), then stop almost immediately. 3D rendering is ~8fps for a
-    // dense graph, so running the settle as cooldown ticks instead would take
-    // ~15s of wall-clock and delay the initial framing/zoom-out that long.
-    warmupTicks: layout.cooldownTicks,
-    cooldownTicks: 8,
+    cooldownTicks: COOLDOWN_TICKS,
     showNavInfo: false,
   };
 
@@ -1011,9 +1001,7 @@ function buildLabelSprite(
   const sprite = new three.Sprite(material);
   const aspect = (material.userData.aspect as number) ?? 4;
   sprite.scale.set(height * aspect, height, 1);
-  // Sit the label just below the (now larger) node sphere. Edge-label sprites
-  // override this every frame via linkPositionUpdate, so it only affects nodes.
-  sprite.position.set(0, -13, 0);
+  sprite.position.set(0, -10, 0);
   return sprite;
 }
 
