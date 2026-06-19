@@ -261,6 +261,49 @@ function useContainerSize(ref: React.RefObject<HTMLDivElement | null>) {
   return size;
 }
 
+/** How far parallel edges bow away from the straight source→target axis. */
+const PARALLEL_EDGE_CURVATURE = 0.3;
+/** Base bow for self-loops, plus the per-loop increment that stacks them. */
+const SELF_LOOP_CURVATURE = 0.5;
+const SELF_LOOP_CURVATURE_STEP = 0.3;
+
+/**
+ * Fan out edges that share the same pair of nodes so they don't collapse onto a
+ * single line (which also stacked every relationship label on the same point).
+ * Mutates each link in place, setting `curvature` + `curveRotation` consumed by
+ * the `linkCurvature` / `linkCurveRotation` accessors. A lone edge stays
+ * straight; self-loops always curve (they're invisible otherwise) and stack at
+ * growing radii; parallel edges share one bow magnitude and spread their curve
+ * rotation evenly around the axis so each gets its own arc in 3D.
+ */
+function assignParallelEdgeCurvature(links: LinkObject[]): void {
+  const groups = new Map<string, LinkObject[]>();
+  for (const link of links) {
+    const s = endpointId(link.source);
+    const t = endpointId(link.target);
+    const key = s < t ? `${s} ${t}` : `${t} ${s}`;
+    const group = groups.get(key);
+    if (group) group.push(link);
+    else groups.set(key, [link]);
+  }
+  for (const group of groups.values()) {
+    const n = group.length;
+    group.forEach((link, i) => {
+      const selfLoop = endpointId(link.source) === endpointId(link.target);
+      if (selfLoop) {
+        link.curvature = SELF_LOOP_CURVATURE + i * SELF_LOOP_CURVATURE_STEP;
+        link.curveRotation = (i * 2 * Math.PI) / n;
+      } else if (n > 1) {
+        link.curvature = PARALLEL_EDGE_CURVATURE;
+        link.curveRotation = (i * 2 * Math.PI) / n;
+      } else {
+        link.curvature = 0;
+        link.curveRotation = 0;
+      }
+    });
+  }
+}
+
 /**
  * Build the force-graph data. Node objects are reused across renders (keyed by
  * id) so the simulation keeps their settled positions instead of relaying out
@@ -301,6 +344,7 @@ function useGraphData(nodes: GraphNode[], edges: GraphEdge[], isDark: boolean) {
       target: e.target,
       label: e.label ?? "",
     }));
+    assignParallelEdgeCurvature(fgLinks);
     return { nodes: fgNodes, links: fgLinks };
   }, [nodes, edges, isDark]);
 }
@@ -728,9 +772,18 @@ function NetworkGraph3D({
       link: LinkObject
     ) => {
       const sprite = obj as InstanceType<ThreeModule["Sprite"]>;
-      const mx = start.x + (end.x - start.x) / 2;
-      const my = start.y + (end.y - start.y) / 2;
-      const mz = start.z + (end.z - start.z) / 2;
+      // Curved links carry a bezier in `__curve`; ride its midpoint so each
+      // parallel edge's label sits on its own arc instead of stacking at the
+      // shared straight-line midpoint. Straight links fall back to the chord.
+      const curve = (
+        link as {
+          __curve?: { getPoint(t: number): { x: number; y: number; z: number } };
+        }
+      ).__curve;
+      const mid = curve?.getPoint(0.5);
+      const mx = mid ? mid.x : start.x + (end.x - start.x) / 2;
+      const my = mid ? mid.y : start.y + (end.y - start.y) / 2;
+      const mz = mid ? mid.z : start.z + (end.z - start.z) / 2;
       sprite.position.set(mx, my, mz);
       // Reveal the edge label by camera closeness, or keep it on for the
       // highlighted neighborhood. Runs every frame, so it tracks fly-in.
@@ -918,6 +971,10 @@ function NetworkGraph3D({
     linkColor,
     linkWidth: 0.5,
     linkOpacity: isDark ? 0.5 : 0.6,
+    // Bow parallel edges (and self-loops) apart; values assigned per link in
+    // assignParallelEdgeCurvature.
+    linkCurvature: "curvature",
+    linkCurveRotation: "curveRotation",
     // Always-on relationship label sprite, centered on each link.
     linkThreeObjectExtend: true,
     linkThreeObject,
