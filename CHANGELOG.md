@@ -6,6 +6,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0-beta.19]
+
+### Changed
+
+- **Build:** test/story fixtures now live in `src/components/__fixtures__/`
+  instead of sitting loose beside components. They are excluded from the
+  published `dist` output, and the component-surface generator skips
+  `*.fixtures.*` files so they no longer leak into `surface/components.json`.
+
 ## [0.1.0-beta.18]
 
 ### Fixed
@@ -19,6 +28,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Initial release. The Poliglot platform is in private beta; the API surface
 may change before 1.0.
 
-[Unreleased]: https://github.com/poliglot-io/uikit/compare/v0.1.0-beta.18...HEAD
+[Unreleased]: https://github.com/poliglot-io/uikit/compare/v0.1.0-beta.19...HEAD
+[0.1.0-beta.19]: https://github.com/poliglot-io/uikit/compare/v0.1.0-beta.18...v0.1.0-beta.19
 [0.1.0-beta.18]: https://github.com/poliglot-io/uikit/compare/v0.1.0-beta.1...v0.1.0-beta.18
 [0.1.0-beta.1]: https://github.com/poliglot-io/uikit/releases/tag/v0.1.0-beta.1
