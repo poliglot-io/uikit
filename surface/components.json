@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2.0.0",
   "package": "@poliglot-io/uikit",
-  "version": "0.1.0-beta.16",
+  "version": "0.1.0-beta.17",
   "components": [
     {
       "file": "src/components/accordion.tsx",
@@ -11540,7 +11540,7 @@
     },
     {
       "file": "src/components/network-graph.tsx",
-      "jsdoc": "Network graph visualization.\n\nPass nodes and edges as data; interaction handlers cover selection, hover,\nand expand. The graph is rendered as a 3D force-directed scene (WebGL): nodes\nare spheres laid out by a physics simulation, with labels and relationship\nedges that de-clutter as the graph grows. Orbit, zoom, hover for a property\ncard, click to select, double-click to expand.",
+      "jsdoc": "Network graph visualization with 3D rendering.\n\nPass nodes and edges as data; interaction handlers cover\nselection, hover, and expand. The graph is navigated in a 3D\nforce-directed scene (WebGL), with always-on node and relationship\nlabels and a type legend.",
       "components": [
         {
           "name": "NetworkGraph",
