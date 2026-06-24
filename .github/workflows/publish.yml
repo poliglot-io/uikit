@@ -45,15 +45,13 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Verify tag matches package.json version
+      # The tag is the single source of truth for the version: stamp package.json
+      # from it at publish time. package.json keeps a 0.0.0-development placeholder
+      # in git, so there is no per-release version-bump commit.
+      - name: Stamp version from tag
         run: |
-          PKG_VERSION="v$(node -p "require('./package.json').version")"
-          REF_TAG="${GITHUB_REF#refs/tags/}"
-          if [ -n "${{ inputs.tag }}" ]; then REF_TAG="${{ inputs.tag }}"; fi
-          if [ "$PKG_VERSION" != "$REF_TAG" ]; then
-            echo "Tag $REF_TAG does not match package.json version $PKG_VERSION"
-            exit 1
-          fi
+          TAG="${{ inputs.tag || github.ref_name }}"
+          npm version "${TAG#v}" --no-git-tag-version --allow-same-version
 
       # Auth is via OIDC trusted publishing (no NPM_TOKEN); provenance is automatic.
       # Prereleases (e.g. 0.1.0-beta.8) go to the `next` dist-tag, never `latest`;

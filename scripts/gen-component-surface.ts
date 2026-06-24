@@ -303,7 +303,6 @@ function main(): number {
   const surface = {
     schemaVersion: SCHEMA_VERSION,
     package: PKG.name,
-    version: PKG.version,
     components,
   };
 
